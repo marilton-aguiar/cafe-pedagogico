@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Café Pedagógico · Painel de análise sobre IA na prática docente</title>
+<script src="https://artifactcdn.diabrowser.engineering/ajax/libs/Chart.js/chart.umd.js"></script>
+<style>
+:root{
+  --ink:#2b2521; --ink2:#5a5149; --muted:#8a8075;
+  --bg:#f6efe6; --card:#fffdf9; --line:#e6dccd;
+  --terra:#d55e00; --teal:#009e73; --gold:#e69f00; --plum:#cc79a7;
+  --neg:#d55e00; --neu:#c9c1b4; --pos:#0072b2;
+  --shadow:0 1px 2px rgba(60,45,30,.05),0 8px 24px rgba(60,45,30,.06);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg); color:var(--ink);
+  font-family:"Avenir Next","Optima","Segoe UI",sans-serif;
+  line-height:1.5; -webkit-font-smoothing:antialiased;
+  padding-bottom:64px;
+}
+.wrap{max-width:1160px;margin:0 auto;padding:0 24px}
+h1,h2,h3{font-family:"Iowan Old Style","Palatino Linotype","Palatino","Georgia",serif;font-weight:600;letter-spacing:-.01em;margin:0}
+/* header */
+header.top{padding:52px 0 28px}
+.eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);font-weight:700;margin-bottom:14px}
+header.top h1{font-size:clamp(30px,4.4vw,50px);line-height:1.04;max-width:22ch}
+header.top .sub{margin-top:18px;font-size:17px;color:var(--ink2);max-width:70ch}
+.ctx{margin-top:20px;display:flex;flex-wrap:wrap;gap:8px}
+.ctx .pill{font-size:12.5px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--ink2)}
+/* filters */
+.filters{position:sticky;top:0;z-index:30;background:rgba(246,239,230,.9);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);padding:14px 0;margin-bottom:26px}
+.filters .row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
+.fgroup{display:flex;flex-direction:column;gap:5px}
+.fgroup label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.fgroup select{font-family:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 12px;min-width:200px;cursor:pointer}
+.fgroup select:focus{outline:2px solid var(--teal);outline-offset:0}
+#clear,#palToggle{align-self:flex-end;font-family:inherit;font-size:13px;background:none;border:1px solid var(--line);border-radius:9px;padding:9px 14px;color:var(--ink2);cursor:pointer}
+#clear:hover,#palToggle:hover{background:#fff;border-color:var(--terra);color:var(--terra)}
+#palToggle{border-color:var(--teal);color:var(--teal)}
+.nresult{margin-left:auto;align-self:flex-end;font-size:13px;color:var(--ink2)}
+.nresult b{font-family:"Iowan Old Style",serif;font-size:19px;color:var(--terra)}
+/* kpi */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px;margin-bottom:30px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;box-shadow:var(--shadow);min-width:0}
+.kpi .v{font-family:"Iowan Old Style",serif;font-size:34px;line-height:1;color:var(--terra)}
+.kpi .v.teal{color:var(--teal)} .kpi .v.gold{color:var(--gold)} .kpi .v.plum{color:var(--plum)}
+.kpi .l{font-size:12.5px;color:var(--ink2);margin-top:9px}
+/* insight */
+.insight{background:linear-gradient(180deg,#fff9f0,#fffdf9);border:1px solid var(--line);border-left:4px solid var(--terra);border-radius:12px;padding:20px 22px;margin-bottom:34px}
+.insight h3{font-size:15px;color:var(--terra);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em}
+.insight ul{margin:0;padding-left:20px} .insight li{margin:7px 0;font-size:15px;color:var(--ink)}
+.insight li b{color:var(--ink)}
+/* sections */
+section.block{margin-bottom:44px}
+.blockhead{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.blockhead .num{font-family:"Iowan Old Style",serif;font-size:15px;color:var(--terra);font-weight:700}
+.blockhead h2{font-size:23px}
+.blockhead .note{margin-left:auto;font-size:13px;color:var(--muted)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.g23{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow);min-width:0;display:flex;flex-direction:column}
+.card h3{font-size:15.5px;margin-bottom:4px}
+.card .cap{font-size:12.5px;color:var(--muted);margin-bottom:12px}
+.chartbox{position:relative;width:100%;height:clamp(240px,34vh,340px);overflow:hidden}
+.chartbox.tall{height:clamp(300px,42vh,420px)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;font-size:12.5px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+/* likert */
+.likert-legend{display:flex;gap:18px;margin-bottom:8px;font-size:13px;color:var(--ink2);flex-wrap:wrap}
+.likert-legend span{display:inline-flex;align-items:center;gap:7px}
+.likert-legend i{width:14px;height:14px;border-radius:3px}
+.chartbox.likert{height:760px}
+/* voices */
+.voice-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.vtab{font-family:inherit;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 15px;cursor:pointer;color:var(--ink2)}
+.vtab.active{background:var(--ink);color:#fff;border-color:var(--ink)}
+.voices{columns:2;column-gap:16px}
+.quote{break-inside:avoid;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;box-shadow:var(--shadow)}
+.qz{margin:12px 0 0;padding:10px 0 0 14px;border-left:3px solid var(--terra);font-size:14px;line-height:1.55;color:var(--ink2)}
+.qz span{display:block;margin-top:6px;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.quote p{margin:0 0 10px;font-size:14.5px;color:var(--ink);font-style:italic}
+.quote .meta{font-size:11.5px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.qtag{font-weight:700;letter-spacing:.04em;text-transform:uppercase;font-size:10.5px;padding:2px 8px;border-radius:999px}
+.qtag.pos{background:#e6f2ee;color:#215f54} .qtag.neg{background:#f7e7df;color:#a24623}
+.qtag.ideal{background:#f2ecdb;color:#8a6a14} .qtag.duvida{background:#efe6ee;color:#6d4159}
+.heat{display:grid;gap:4px;font-size:12.5px;overflow-x:auto}
+.heat .hrow{display:grid;grid-template-columns:190px repeat(5,minmax(64px,1fr)) 58px 82px;gap:4px;align-items:stretch;min-width:640px}
+.heat .hh{font-size:10px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;align-items:flex-end;justify-content:center;text-align:center;padding:0 4px 6px}
+.heat .hh.l{justify-content:flex-start;padding-left:8px}
+.heat .rk{display:flex;align-items:center;font-weight:600;color:var(--ink);padding:0 8px;font-size:12.5px}
+.heat .cell{border-radius:7px;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.05}
+.heat .cell .c{font-family:"Iowan Old Style",serif;font-size:16px}
+.heat .cell .p{font-size:10px;opacity:.75}
+.heat .tot{background:#f0e8db;border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--ink)}
+.heat .uf{background:#eaf1ee;border-radius:7px;display:flex;align-items:center;justify-content:center;color:var(--teal);font-weight:700}
+.heat .totrow .rk,.heat .totrow .tot,.heat .totrow .uf{font-weight:700}
+.heat .totrow .cell{border:1px solid var(--line)}
+.cloud{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px 14px;padding:20px 6px;line-height:1.1}
+.cloud .cw{font-family:"Iowan Old Style","Palatino","Georgia",serif;cursor:default;transition:opacity .15s;letter-spacing:-.01em}
+.cloud .cw:hover{opacity:1!important}
+.heat.h3 .hrow{grid-template-columns:240px repeat(3,minmax(90px,1fr)) 56px 92px;min-width:560px}
+footer{border-top:1px solid var(--line);padding:28px 0 10px;font-size:13px;color:var(--muted);margin-top:10px}
+footer b{color:var(--ink2)}
+@media(max-width:900px){
+  .kpis{grid-template-columns:repeat(2,1fr)} .g2,.g3,.g23{grid-template-columns:1fr} .voices{columns:1}
+  .fgroup select{min-width:150px}
+}
+@media print{
+  .filters{position:static} body{background:#fff;padding-bottom:0}
+  .card,.kpi{box-shadow:none} section.block{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Café Pedagógico · SIIEPE 2026 · UFPel</div>
+  <h1>Como os docentes percebem e usam a IA na prática de ensino</h1>
+  <p class="sub">Painel interativo de análise do questionário conduzido pelo Grupo de Interlocução Pedagógica (GIP). Explore os dados por área, tempo de docência e atuação — todos os gráficos se atualizam com os filtros.</p>
+  <div class="ctx">
+    <span class="pill">95 respostas</span>
+    <span class="pill">8 seções · 19 afirmações em escala</span>
+    <span class="pill">Respostas anônimas · análise agregada</span>
+    <span class="pill">Coleta: 04–14/09/2026</span>
+  </div>
+</header>
+</div>
+
+<div class="filters">
+  <div class="wrap">
+    <div class="row">
+      <div class="fgroup"><label for="fArea">Área de conhecimento</label><select id="fArea"></select></div>
+      <div class="fgroup"><label for="fTempo">Tempo de docência</label><select id="fTempo"></select></div>
+      <div class="fgroup"><label for="fAtua">Atuação</label><select id="fAtua"></select></div>
+      <button id="clear">Limpar filtros</button>
+      <button id="palToggle" title="Alternar paleta de cores">Paleta: Okabe–Ito</button>
+      <div class="nresult">Analisando <b id="nBig">95</b> de 95 respostas</div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="kpis" id="kpis"></div>
+  <div class="insight" id="insight"><h3>Leituras principais</h3><ul id="insightList"></ul></div>
+  <div id="sections"></div>
+  <footer>
+    <b>Metodologia.</b> Questionário de autopreenchimento (Google Formulários), 95 respostas anônimas de docentes da UFPel, entre 04 e 15/09/2026. Percentuais calculados sobre o total de respondentes de cada recorte; questões de múltipla escolha somam mais de 100%. Escalas de concordância de 1 (discordo totalmente) a 5 (concordo totalmente); "Discordam" agrupa 1–2 e "Concordam" agrupa 4–5. Áreas com grafia livre foram normalizadas para a classificação padrão.<br><br>
+    Elaborado com Dia · para subsidiar as discussões do Café Pedagógico.
+  </footer>
+</div>
+
+<script>
+/* ===== DADOS: 54 respostas ===== */
+/* chaves: ar área, tp tempo, at atuação, fu freq. uso docente, fe ferramentas, fi finalidades,
+   cf confiança(1-5), fo formação, fa freq. percebida nos alunos(1-5), av atividades,
+   po política, ap efeito aprendizagem(1-5), pr efeito produtividade(1-5), op oportunidades,
+   avl como avalia, ps valoriza processo, ad adaptação(0-10), fp falso positivo,
+   es estratégias, lk[19] escala de concordância */
+const R=[
+{ar:"Engenharias",tp:"11–20 anos",at:"graduação",fu:"raramente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas"],cf:3,fo:"Não",fa:5,av:["Trabalhos práticos","Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Não",ap:3,pr:3,op:["Produtividade","Redução de carga administrativa","Apoio à pesquisa"],avl:["Ajustei os critérios"],ps:"parcialmente",ad:0,fp:"não",es:["Comparação com histórico","Rascunhos/etapas","Volta a presenciais/manuscritas"],lk:[2,5,5,2,1,1,1,5,5,5,1,1,3,5,5,5,4,1,5]},
+{ar:"Ciências Exatas e da Terra",tp:">20 anos",at:"graduação",fu:"semanalmente",fe:["Gemini"],fi:["Pesquisa"],cf:3,fo:"Não",fa:1,av:[],po:"Não",ap:3,pr:3,op:["Apoio à identificação de dificuldades","Feedback imediato","Democratização do acesso"],avl:["Outro"],ps:"sim",ad:5,fp:"não",es:[],lk:[3,3,3,3,1,2,1,3,1,null,null,3,2,1,3,3,3,2,2]},
+{ar:"Ciências Sociais Aplicadas",tp:"11–20 anos",at:"graduação",fu:"semanalmente",fe:["Gemini Notebook"],fi:["Preparação de aulas","Outro"],cf:4,fo:"Sim, pela instituição",fa:4,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:5,op:["Apoio à pesquisa","Democratização do acesso","Desenvolvimento profissional docente"],avl:["Ajustei os critérios"],ps:"parcialmente",ad:4,fp:"não",es:["Outro"],lk:[2,5,4,4,2,2,3,4,3,2,3,2,5,4,4,5,5,3,2]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Outro"],cf:3,fo:"Não",fa:4,av:["Resolução de exercícios"],po:"Não",ap:2,pr:4,op:["Personalização de conteúdo"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:0,fp:"não",es:["Comparação com histórico"],lk:[3,5,3,3,null,3,1,5,1,1,1,1,1,1,5,5,2,1,2]},
+{ar:"Ciências da Saúde",tp:">20 anos",at:"graduação",fu:"mensalmente",fe:["ChatGPT","Gemini"],fi:["Elaboração de avaliações","Correção","Comunicação administrativa"],cf:3,fo:"Não",fa:4,av:["Trabalhos teóricos","Redações"],po:"Sim, informal",ap:3,pr:3,op:["Personalização de conteúdo","Redução de carga administrativa","Apoio à identificação de dificuldades"],avl:["Ainda não defini abordagem"],ps:"sim",ad:3,fp:"não tenho certeza",es:["Arguição oral","Avaliação presencial controlada","Rascunhos/etapas"],lk:[4,5,5,4,1,1,2,5,4,4,3,4,3,4,4,4,5,3,4]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini","Gemini Notebook","Grammarly"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa"],cf:4,fo:"Sim, por conta própria",fa:4,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Códigos"],po:"Sim, informal",ap:3,pr:4,op:["Produtividade","Redução de carga administrativa","Criatividade e inovação didática"],avl:["Mantenho os critérios anteriores","Ainda não defini abordagem"],ps:"sim",ad:3,fp:"não",es:["Arguição oral","Volta a presenciais/manuscritas"],lk:[4,5,4,4,5,3,2,4,2,4,1,4,5,1,4,4,3,3,1]},
+{ar:"Ciências da Saúde",tp:">20 anos",at:"ambos",fu:"raramente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Produção de material didático"],cf:3,fo:"Não",fa:3,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Não",ap:3,pr:2,op:["Produtividade","Apoio à pesquisa","Pensamento crítico e letramento em IA"],avl:["Mantenho os critérios anteriores"],ps:"não",ad:0,fp:"não",es:["Nenhuma estratégia específica"],lk:[5,5,5,4,2,1,1,5,5,4,1,1,2,4,4,5,4,2,4]},
+{ar:"Ciências Exatas e da Terra",tp:"6–10 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático"],cf:3,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos teóricos","Redações","Códigos","Resumos/resenhas"],po:"Sim, formalizada",ap:4,pr:3,op:["Apoio à pesquisa","Desenvolvimento profissional docente","Pensamento crítico e letramento em IA"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"sim",ad:6,fp:"não tenho certeza",es:["Arguição oral","Volta a presenciais/manuscritas","Reflexão do estudante"],lk:[2,4,5,5,4,3,1,3,2,2,1,2,4,5,4,5,5,1,2]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"raramente",fe:["Gemini","Microsoft Copilot"],fi:["Preparação de aulas","Pesquisa"],cf:4,fo:"Não",fa:3,av:["Trabalhos teóricos"],po:"Não",ap:3,pr:4,op:["Personalização de conteúdo","Criatividade e inovação didática","Pensamento crítico e letramento em IA"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:6,fp:"não tenho certeza",es:["Nenhuma estratégia específica"],lk:[4,3,5,4,2,1,1,4,4,4,2,3,3,2,4,4,4,2,3]},
+{ar:"Ciências da Saúde",tp:">20 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Microsoft Copilot"],fi:["Produção de material didático","Comunicação administrativa"],cf:3,fo:"Sim, pela instituição",fa:3,av:["Trabalhos teóricos"],po:"Sim, informal",ap:3,pr:3,op:["Personalização de conteúdo","Produtividade","Desenvolvimento profissional docente"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:0,fp:"não",es:["Arguição oral"],lk:[4,4,3,4,3,2,1,5,2,2,1,5,5,3,3,2,3,1,4]},
+{ar:"Ciências Biológicas",tp:"11–20 anos",at:"ambos",fu:"mensalmente",fe:["ChatGPT","Gemini","Grammarly"],fi:["Pesquisa","Outro"],cf:4,fo:"Sim, por conta própria",fa:4,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, informal",ap:2,pr:4,op:["Produtividade","Apoio à pesquisa"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"sim",ad:7,fp:"sim",es:["Detector de IA","Comparação com histórico","Volta a presenciais/manuscritas"],lk:[2,3,4,3,5,4,2,5,3,4,3,4,2,3,2,5,3,2,1]},
+{ar:"Ciências Agrárias",tp:">20 anos",at:"ambos",fu:"semanalmente",fe:["Gemini","Perplexity","Microsoft Copilot"],fi:["Produção de material didático","Comunicação administrativa"],cf:3,fo:"Sim, por conta própria",fa:4,av:["Resumos/resenhas"],po:"Não",ap:3,pr:4,op:["Redução de carga administrativa","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Mantenho os critérios anteriores"],ps:"não",ad:3,fp:"não tenho certeza",es:["Nenhuma estratégia específica"],lk:[2,2,5,4,2,5,1,5,1,2,3,3,5,5,5,5,1,1,2]},
+{ar:"Ciências Biológicas",tp:"6–10 anos",at:"graduação",fu:"raramente",fe:["ChatGPT","Gemini Notebook","Microsoft Copilot","Grammarly"],fi:["Pesquisa"],cf:2,fo:"Sim, pela instituição",fa:4,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, informal",ap:3,pr:3,op:["Redução de carga administrativa","Ganhos com tutoria por IA","Pensamento crítico e letramento em IA"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:8,fp:"não tenho certeza",es:["Comparação com histórico","Volta a presenciais/manuscritas","Reflexão do estudante"],lk:[2,3,5,5,3,2,3,4,4,3,3,4,4,4,4,4,3,3,1]},
+{ar:"Multidisciplinar",tp:"11–20 anos",at:"graduação",fu:"raramente",fe:["Gemini"],fi:["Pesquisa"],cf:2,fo:"Não",fa:5,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, informal",ap:1,pr:3,op:["Produtividade","Apoio à pesquisa","Pensamento crítico e letramento em IA"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:2,fp:"não",es:["Detector de IA","Avaliação presencial controlada","Reflexão do estudante"],lk:[4,4,5,5,1,1,1,5,5,5,1,1,4,2,5,5,3,1,5]},
+{ar:"Engenharias",tp:"6–10 anos",at:"ambos",fu:"diariamente",fe:["Gemini","Gemini Notebook","Perplexity"],fi:["Preparação de aulas","Pesquisa","Produção de material didático"],cf:4,fo:"Não",fa:5,av:["Trabalhos práticos","Códigos"],po:"Ainda não, pretendo definir",ap:3,pr:5,op:["Produtividade","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Ajustei os critérios","Ainda não defini abordagem"],ps:"parcialmente",ad:7,fp:"não",es:["Nenhuma estratégia específica"],lk:[2,4,5,5,1,1,1,4,3,1,2,4,2,1,5,4,1,4,1]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Outro"],fi:["Correção","Comunicação administrativa"],cf:4,fo:"Não",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Redações","Códigos"],po:"Sim, informal",ap:3,pr:4,op:["Produtividade","Apoio à pesquisa"],avl:["Mantenho os critérios anteriores","Métodos alternativos (presencial/oral)","Outro"],ps:"sim",ad:8,fp:"não tenho certeza",es:["Nenhuma estratégia específica"],lk:[3,3,5,5,1,2,1,5,4,3,3,4,3,1,2,5,5,4,2]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"graduação",fu:"nunca",fe:["Não uso nenhuma"],fi:[],cf:1,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, formalizada",ap:1,pr:1,op:[],avl:["Ajustei os critérios"],ps:"sim",ad:7,fp:"não",es:["Arguição oral","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[2,3,5,5,5,5,1,5,5,5,3,2,5,5,5,5,4,1,3]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático"],cf:3,fo:"Não",fa:4,av:["Trabalhos teóricos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:5,op:["Personalização de conteúdo","Redução de carga administrativa","Criatividade e inovação didática"],avl:["Mantenho os critérios anteriores","Métodos alternativos (presencial/oral)"],ps:"sim",ad:5,fp:"não",es:["Arguição oral"],lk:[2,5,5,5,1,1,1,1,2,2,null,2,1,null,3,3,3,3,2]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Gemini","Microsoft Copilot"],fi:["Preparação de aulas","Correção","Pesquisa"],cf:3,fo:"Sim, por conta própria",fa:3,av:["Trabalhos teóricos"],po:"Sim, informal",ap:3,pr:3,op:["Apoio à pesquisa","Desenvolvimento profissional docente","Pensamento crítico e letramento em IA"],avl:["Mantenho os critérios anteriores","Outro"],ps:"sim",ad:8,fp:"não",es:["Comparação com histórico","Arguição oral","Reflexão do estudante"],lk:[3,3,4,2,3,2,1,5,4,3,1,1,1,1,1,5,4,2,3]},
+{ar:"Ciências da Saúde",tp:">20 anos",at:"ambos",fu:"raramente",fe:["ChatGPT","Gemini Notebook"],fi:["Outro"],cf:4,fo:"Sim, por conta própria",fa:2,av:["Trabalhos teóricos"],po:"Ainda não, pretendo definir",ap:3,pr:3,op:["Produtividade","Redução de carga administrativa","Apoio à pesquisa"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:2,fp:"não",es:["Reflexão do estudante"],lk:[2,2,2,2,1,2,2,5,5,5,2,2,2,4,3,3,3,2,2]},
+{ar:"Ciências Biológicas",tp:"6–10 anos",at:"graduação",fu:"mensalmente",fe:["ChatGPT"],fi:["Elaboração de avaliações","Pesquisa"],cf:3,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, informal",ap:2,pr:4,op:["Redução de carga administrativa"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:5,fp:"não",es:["Detector de IA","Arguição oral","Reflexão do estudante"],lk:[4,5,5,5,3,1,1,5,5,5,1,1,5,2,2,5,3,1,4]},
+{ar:"Ciências Agrárias",tp:">20 anos",at:"ambos",fu:"diariamente",fe:["Claude","LeapSpace","Outro"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:5,fo:"Sim, por conta própria",fa:1,av:[],po:"Não",ap:4,pr:5,op:["Produtividade","Criatividade e inovação didática","Apoio à pesquisa"],avl:[],ps:null,ad:10,fp:null,es:[],lk:[5,3,3,5,5,1,1,1,1,1,1,5,1,5,2,3,1,1,1]},
+{ar:"Ciências Sociais Aplicadas",tp:"11–20 anos",at:"pós-graduação",fu:"semanalmente",fe:["ChatGPT","Claude"],fi:["Correção","Comunicação administrativa"],cf:3,fo:"Sim, por conta própria",fa:5,av:["Redações"],po:"Ainda não, pretendo definir",ap:2,pr:5,op:["Redução de carga administrativa","Apoio à pesquisa"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:10,fp:"não tenho certeza",es:["Volta a presenciais/manuscritas"],lk:[1,3,5,5,1,5,5,1,1,1,1,3,3,2,2,3,1,1,1]},
+{ar:"Ciências Sociais Aplicadas",tp:"6–10 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Gemini Notebook"],fi:["Preparação de aulas","Produção de material didático"],cf:3,fo:"Sim, por conta própria",fa:5,av:["Trabalhos teóricos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:2,pr:4,op:["Produtividade","Redução de carga administrativa","Apoio à pesquisa"],avl:["Ainda não defini abordagem"],ps:"não",ad:6,fp:"não tenho certeza",es:["Comparação com histórico","Arguição oral","Avaliação presencial controlada"],lk:[1,5,5,5,1,1,1,5,5,1,3,3,3,1,1,5,5,1,1]},
+{ar:"Ciências Sociais Aplicadas",tp:"6–10 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","DeepSeek","Microsoft Copilot"],fi:["Preparação de aulas","Elaboração de avaliações","Produção de material didático"],cf:3,fo:"Sim, pela instituição",fa:5,av:["Trabalhos teóricos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:4,op:["Apoio à pesquisa"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:5,fp:"não",es:["Nenhuma estratégia específica"],lk:[1,1,5,5,3,3,1,5,5,3,2,3,5,1,3,5,5,3,2]},
+{ar:"Ciências Sociais Aplicadas",tp:"11–20 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT","Microsoft Copilot"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Comunicação administrativa"],cf:3,fo:"Sim, pela instituição",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações"],po:"Sim, formalizada",ap:2,pr:5,op:["Produtividade","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"sim",ad:8,fp:"não",es:["Comparação com histórico","Arguição oral","Rascunhos/etapas"],lk:[4,5,5,5,1,1,1,1,1,3,1,1,5,5,5,5,5,1,1]},
+{ar:"Ciências Sociais Aplicadas",tp:"11–20 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT","Gemini","Gemini Notebook","DeepSeek","Microsoft Copilot","Grammarly"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:4,fo:"Não",fa:5,av:["Redações"],po:"Sim, informal",ap:2,pr:5,op:["Criatividade e inovação didática","Democratização do acesso","Pensamento crítico e letramento em IA"],avl:["Métodos alternativos (presencial/oral)","Outro"],ps:"sim",ad:3,fp:"não tenho certeza",es:["Arguição oral","Avaliação presencial controlada","Reflexão do estudante"],lk:[1,4,2,2,2,1,1,5,4,1,4,4,5,5,5,2,5,2,3]},
+{ar:"Ciências Sociais Aplicadas",tp:">20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático"],cf:4,fo:"Sim, por conta própria",fa:4,av:["Trabalhos teóricos"],po:"Não",ap:4,pr:4,op:["Criatividade e inovação didática","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:3,fp:"não",es:["Arguição oral","Volta a presenciais/manuscritas"],lk:[2,2,2,2,2,2,1,1,2,1,1,1,3,2,2,3,1,2,2]},
+{ar:"Ciências Sociais Aplicadas",tp:"2–5 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Claude"],fi:["Preparação de aulas","Pesquisa","Produção de material didático"],cf:4,fo:"Sim, por conta própria",fa:4,av:["Trabalhos teóricos"],po:"Sim, informal",ap:4,pr:5,op:["Produtividade","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:8,fp:"não",es:["Arguição oral","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[1,2,2,2,2,2,2,2,2,1,1,4,4,4,1,4,4,2,2]},
+{ar:"Ciências Biológicas",tp:"2–5 anos",at:"graduação",fu:"raramente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Elaboração de avaliações","Produção de material didático"],cf:4,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos práticos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:5,pr:5,op:["Personalização de conteúdo","Produtividade","Criatividade e inovação didática"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:7,fp:"não",es:["Comparação com histórico","Rascunhos/etapas"],lk:[1,5,1,2,4,4,2,5,3,4,3,3,5,3,3,3,3,2,2]},
+{ar:"Ciências Sociais Aplicadas",tp:"2–5 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","DeepSeek"],fi:["Preparação de aulas","Elaboração de avaliações","Produção de material didático"],cf:4,fo:"Não",fa:3,av:["Resolução de exercícios"],po:"Não",ap:3,pr:4,op:["Produtividade","Redução de carga administrativa","Criatividade e inovação didática"],avl:["Ainda não defini abordagem"],ps:"parcialmente",ad:3,fp:"não",es:["Nenhuma estratégia específica"],lk:[3,3,3,4,2,2,2,4,2,2,2,2,3,2,4,4,4,4,2]},
+{ar:"Ciências da Saúde",tp:"6–10 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT"],fi:["Correção","Pesquisa"],cf:5,fo:"Não",fa:2,av:["Trabalhos teóricos"],po:"Não",ap:4,pr:4,op:["Pensamento crítico e letramento em IA"],avl:["Ainda não defini abordagem"],ps:"sim",ad:7,fp:"não tenho certeza",es:["Nenhuma estratégia específica"],lk:[null,null,1,null,null,1,1,1,1,1,1,1,1,5,4,1,1,5,5]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Gemini","Gemini Notebook","Microsoft Copilot"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Sim, por conta própria",fa:5,av:["Trabalhos teóricos","Resumos/resenhas"],po:"Sim, formalizada",ap:2,pr:5,op:["Personalização de conteúdo","Redução de carga administrativa","Feedback imediato"],avl:["Ajustei os critérios"],ps:"sim",ad:6,fp:"não",es:["Arguição oral","Reflexão do estudante"],lk:[2,3,5,5,5,5,5,5,3,1,1,1,3,5,4,5,1,1,3]},
+{ar:"Ciências Humanas",tp:">20 anos",at:"pós-graduação",fu:"diariamente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Correção","Pesquisa","Comunicação administrativa"],cf:4,fo:"Não",fa:5,av:["Redações"],po:"Sim, formalizada",ap:null,pr:4,op:["Criatividade e inovação didática","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Ainda não defini abordagem"],ps:"não",ad:6,fp:"não",es:[],lk:[3,5,3,3,2,1,1,5,4,2,1,1,3,2,5,4,4,1,2]},
+{ar:"Ciências Humanas",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Não",fa:4,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, informal",ap:2,pr:3,op:["Redução de carga administrativa","Apoio à identificação de dificuldades","Apoio à pesquisa"],avl:["Mantenho os critérios anteriores"],ps:"parcialmente",ad:6,fp:"não tenho certeza",es:["Reflexão do estudante"],lk:[3,5,5,5,2,2,3,4,4,1,1,5,1,3,3,4,4,2,2]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"ambos",fu:"semanalmente",fe:["Microsoft Copilot"],fi:["Preparação de aulas","Pesquisa","Produção de material didático"],cf:3,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos teóricos","Resumos/resenhas"],po:"Não",ap:2,pr:4,op:["Redução de carga administrativa","Apoio à pesquisa","Pensamento crítico e letramento em IA"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:6,fp:"não",es:["Comparação com histórico","Avaliação presencial controlada"],lk:[4,4,4,4,1,1,1,5,3,4,2,1,1,4,4,3,4,2,2]},
+{ar:"Engenharias",tp:"11–20 anos",at:"graduação",fu:"semanalmente",fe:["Gemini","Gemini Notebook"],fi:["Elaboração de avaliações","Pesquisa","Outro"],cf:3,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos teóricos","Resumos/resenhas","Outro"],po:"Ainda não, pretendo definir",ap:3,pr:3,op:["Produtividade","Redução de carga administrativa","Desenvolvimento profissional docente"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:6,fp:"não",es:["Arguição oral","Avaliação presencial controlada","Rascunhos/etapas"],lk:[2,3,4,4,2,2,1,5,3,4,2,2,1,4,3,4,1,2,1]},
+{ar:"Engenharias",tp:"2–5 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","LeapSpace","DeepSeek"],fi:["Preparação de aulas","Produção de material didático"],cf:2,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Códigos","Resumos/resenhas"],po:"Sim, informal",ap:4,pr:5,op:["Produtividade","Redução de carga administrativa","Apoio à identificação de dificuldades"],avl:["Ajustei os critérios","Ainda não defini abordagem","Outro"],ps:"sim",ad:6,fp:"não",es:["Arguição oral","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[1,2,4,4,3,3,2,4,2,1,2,3,5,2,1,4,3,1,1]},
+{ar:"Ciências Agrárias",tp:"11–20 anos",at:"ambos",fu:"semanalmente",fe:["Gemini Notebook","DeepSeek","Grammarly"],fi:["Elaboração de avaliações","Comunicação administrativa"],cf:3,fo:"Não",fa:4,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:4,pr:3,op:["Redução de carga administrativa","Apoio à identificação de dificuldades","Criatividade e inovação didática"],avl:["Mantenho os critérios anteriores"],ps:"parcialmente",ad:5,fp:"não tenho certeza",es:["Arguição oral"],lk:[4,4,5,3,3,3,1,5,5,3,2,2,3,4,4,5,5,1,4]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT","LeapSpace","Microsoft Copilot"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:5,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações"],po:"Sim, informal",ap:3,pr:5,op:["Produtividade","Feedback imediato","Apoio à pesquisa"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"sim",ad:8,fp:"não tenho certeza",es:["Comparação com histórico","Volta a presenciais/manuscritas","Reflexão do estudante"],lk:[2,4,4,4,3,3,2,4,1,1,2,4,2,4,4,4,4,1,1]},
+{ar:"Ciências Sociais Aplicadas",tp:"11–20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Gemini","Gemini Notebook"],fi:["Preparação de aulas","Elaboração de avaliações"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Trabalhos teóricos","Redações","Outro"],po:"Sim, informal",ap:4,pr:4,op:["Acessibilidade","Criatividade e inovação didática","Pensamento crítico e letramento em IA"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:6,fp:"não",es:["Nenhuma estratégia específica"],lk:[1,2,4,4,1,2,1,5,4,3,1,2,2,2,3,4,4,1,3]},
+{ar:"Ciências da Saúde",tp:">20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Gemini","Grammarly"],fi:["Preparação de aulas","Correção","Pesquisa","Produção de material didático"],cf:3,fo:"Sim, por conta própria",fa:2,av:["Trabalhos práticos","Trabalhos teóricos","Resumos/resenhas"],po:"Não sei",ap:2,pr:3,op:["Apoio à pesquisa","Democratização do acesso","Pensamento crítico e letramento em IA"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:6,fp:"não tenho certeza",es:["Comparação com histórico"],lk:[3,2,5,5,2,2,1,5,4,1,3,3,2,2,4,5,5,2,2]},
+{ar:"Ciências Biológicas",tp:">20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:5,fo:"Sim, por conta própria",fa:3,av:["Trabalhos teóricos"],po:"Ainda não, pretendo definir",ap:3,pr:5,op:["Redução de carga administrativa","Apoio à pesquisa","Democratização do acesso"],avl:["Outro"],ps:"parcialmente",ad:5,fp:"não",es:["Outro"],lk:[5,5,3,2,1,1,1,1,1,1,2,5,1,1,1,5,4,3,1]},
+{ar:"Ciências Exatas e da Terra",tp:"<2 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Gemini","Gemini Notebook"],fi:["Preparação de aulas","Elaboração de avaliações"],cf:3,fo:"Não",fa:4,av:["Redações","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:5,op:["Personalização de conteúdo","Produtividade","Redução de carga administrativa"],avl:["Ainda não defini abordagem"],ps:"parcialmente",ad:7,fp:"não",es:["Avaliação presencial controlada"],lk:[2,4,5,5,3,3,1,5,4,3,2,1,2,1,1,4,3,1,2]},
+{ar:"Ciências Biológicas",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT"],fi:["Elaboração de avaliações","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Não",fa:4,av:["Resumos/resenhas"],po:"Não sei",ap:3,pr:4,op:["Redução de carga administrativa","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Ainda não defini abordagem"],ps:"não",ad:0,fp:"não",es:["Nenhuma estratégia específica"],lk:[5,5,5,5,1,1,1,5,5,5,1,1,1,1,2,3,3,5,3]},
+{ar:"Linguística/Letras/Artes",tp:"11–20 anos",at:"graduação",fu:"semanalmente",fe:["Gemini"],fi:["Produção de material didático"],cf:4,fo:"Não",fa:3,av:["Trabalhos teóricos"],po:"Sim, informal",ap:4,pr:5,op:["Personalização de conteúdo"],avl:["Ainda não defini abordagem"],ps:"sim",ad:5,fp:"não tenho certeza",es:["Comparação com histórico"],lk:[1,1,2,2,3,3,1,2,1,1,2,3,2,2,2,2,1,1,1]},
+{ar:"Ciências Sociais Aplicadas",tp:">20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Outro"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:2,fo:"Sim, por conta própria",fa:5,av:["Trabalhos práticos","Trabalhos teóricos","Redações","Resumos/resenhas","Outro"],po:"Sim, informal",ap:3,pr:5,op:["Apoio à pesquisa","Democratização do acesso","Desenvolvimento profissional docente"],avl:["Métodos alternativos (presencial/oral)","Ainda não defini abordagem","Outro"],ps:"sim",ad:5,fp:"sim",es:["Nenhuma estratégia específica","Outro"],lk:[3,3,5,5,3,3,3,3,3,2,2,2,3,3,3,5,5,2,3]},
+{ar:"Multidisciplinar",tp:">20 anos",at:"graduação",fu:"nunca",fe:["Não uso nenhuma"],fi:["Outro"],cf:1,fo:"Não",fa:3,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, informal",ap:1,pr:1,op:["Acessibilidade"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:5,fp:"não",es:["Arguição oral","Rascunhos/etapas"],lk:[2,3,3,3,1,1,1,3,3,3,1,1,3,3,3,3,3,1,3]},
+{ar:"Ciências Humanas",tp:">20 anos",at:"pós-graduação",fu:"diariamente",fe:["Claude","Gemini","Gemini Notebook","Outro"],fi:["Preparação de aulas","Pesquisa","Produção de material didático"],cf:3,fo:"Sim, por conta própria",fa:4,av:["Trabalhos práticos","Trabalhos teóricos","Resumos/resenhas"],po:"Sim, informal",ap:4,pr:5,op:["Produtividade","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Ajustei os critérios"],ps:"sim",ad:6,fp:"sim",es:["Detector de IA","Comparação com histórico","Arguição oral"],lk:[4,5,5,5,2,2,1,1,3,1,2,2,3,4,3,5,4,3,2]},
+{ar:"Ciências Agrárias",tp:">20 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","Outro"],fi:["Correção","Pesquisa","Produção de material didático","Outro"],cf:3,fo:"Sim, por conta própria",fa:4,av:["Resolução de exercícios","Códigos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:4,pr:5,op:["Criatividade e inovação didática","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Mantenho os critérios anteriores"],ps:"parcialmente",ad:8,fp:"não",es:["Detector de IA","Outro"],lk:[2,4,5,5,5,4,2,4,2,1,2,4,1,3,2,4,2,2,3]},
+{ar:"Ciências Humanas",tp:">20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Perplexity"],fi:["Elaboração de avaliações","Pesquisa","Produção de material didático"],cf:4,fo:"Sim, pela instituição",fa:5,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:4,op:["Criatividade e inovação didática","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:5,fp:"não tenho certeza",es:["Avaliação presencial controlada"],lk:[2,4,4,5,1,2,3,3,4,3,1,3,4,4,4,5,5,1,3]},
+{ar:"Ciências Biológicas",tp:">20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Gemini Notebook","Perplexity"],fi:["Elaboração de avaliações","Pesquisa","Comunicação administrativa","Outro"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Resumos/resenhas"],po:"Não",ap:3,pr:4,op:["Produtividade","Redução de carga administrativa","Apoio à pesquisa"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:4,fp:"não tenho certeza",es:["Avaliação presencial controlada","Volta a presenciais/manuscritas","Reflexão do estudante"],lk:[2,2,2,2,2,2,1,1,2,2,1,1,3,2,2,2,2,2,1]},
+{ar:"Ciências Sociais Aplicadas",tp:"6–10 anos",at:"graduação",fu:"diariamente",fe:["Gemini Notebook","Grammarly","Outro"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático"],cf:5,fo:"Sim, pela instituição",fa:3,av:["Trabalhos práticos","Trabalhos teóricos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:5,op:["Acessibilidade","Redução de carga administrativa","Apoio à pesquisa"],avl:["Ainda não defini abordagem"],ps:"sim",ad:3,fp:"não",es:["Detector de IA","Rascunhos/etapas","Reflexão do estudante"],lk:[4,4,5,3,1,1,1,4,5,5,2,1,3,3,4,4,4,2,1]},
+{ar:"Engenharias",tp:"6–10 anos",at:"graduação",fu:"semanalmente",fe:["Gemini","Microsoft Copilot"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa","Outro"],cf:3,fo:"Sim, pela instituição",fa:5,av:["Resolução de exercícios","Códigos"],po:"Não",ap:1,pr:3,op:["Produtividade","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Outro"],ps:"sim",ad:5,fp:"não",es:["Outro"],lk:[3,3,5,5,1,1,2,5,5,1,1,1,1,1,1,1,5,2,4]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"ambos",fu:"raramente",fe:["Gemini"],fi:["Produção de material didático"],cf:3,fo:"Não",fa:1,av:["Outro"],po:"Não",ap:1,pr:3,op:["Acessibilidade","Redução de carga administrativa"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:8,fp:"não",es:["Comparação com histórico","Nenhuma estratégia específica"],lk:[2,4,5,5,3,3,1,2,1,4,1,5,4,1,3,5,2,null,2]},
+{ar:"Ciências Agrárias",tp:"11–20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT"],fi:["Pesquisa"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Provas","Resolução de exercícios","Trabalhos teóricos","Resumos/resenhas"],po:"Sim, formalizada",ap:2,pr:3,op:["Personalização de conteúdo","Apoio à pesquisa","Pensamento crítico e letramento em IA"],avl:["Mantenho os critérios anteriores"],ps:"parcialmente",ad:6,fp:"não",es:["Detector de IA","Rascunhos/etapas"],lk:[2,3,2,2,1,1,1,5,5,5,3,3,3,1,1,3,1,1,1]},
+{ar:"Engenharias",tp:"11–20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","Perplexity","Microsoft Copilot"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático"],cf:5,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, formalizada",ap:3,pr:5,op:["Produtividade","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Mantenho os critérios anteriores","Outro"],ps:"sim",ad:5,fp:"não",es:["Detector de IA","Arguição oral"],lk:[1,4,2,2,2,3,3,3,2,1,4,5,1,5,4,4,2,1,3]},
+{ar:"Ciências Exatas e da Terra",tp:"2–5 anos",at:"ambos",fu:"semanalmente",fe:["Gemini","Grammarly"],fi:["Preparação de aulas","Produção de material didático"],cf:4,fo:"Não",fa:5,av:["Provas","Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Códigos"],po:"Não",ap:1,pr:4,op:["Produtividade","Redução de carga administrativa","Apoio à pesquisa"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"sim",ad:6,fp:"não",es:["Comparação com histórico","Arguição oral","Avaliação presencial controlada"],lk:[1,5,5,4,2,4,2,2,4,1,1,3,3,4,3,4,5,1,1]},
+{ar:"Ciências Exatas e da Terra",tp:">20 anos",at:"pós-graduação",fu:"diariamente",fe:["ChatGPT","Claude","Gemini","Grammarly"],fi:["Preparação de aulas","Pesquisa"],cf:4,fo:"Sim, por conta própria",fa:4,av:["Resolução de exercícios","Trabalhos teóricos","Redações"],po:"Ainda não, pretendo definir",ap:4,pr:4,op:["Personalização de conteúdo","Apoio à identificação de dificuldades","Apoio à pesquisa"],avl:["Ajustei os critérios"],ps:"sim",ad:6,fp:"sim",es:["Arguição oral","Reflexão do estudante"],lk:[2,3,3,3,2,2,3,2,2,2,2,2,3,3,3,3,3,3,2]},
+{ar:"Multidisciplinar",tp:"11–20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT"],fi:["Preparação de aulas","Produção de material didático"],cf:3,fo:"Sim, por conta própria",fa:3,av:["Provas","Resolução de exercícios","Trabalhos práticos"],po:"Não",ap:3,pr:3,op:["Produtividade","Redução de carga administrativa","Criatividade e inovação didática"],avl:["Ainda não defini abordagem"],ps:"parcialmente",ad:6,fp:"não",es:["Nenhuma estratégia específica"],lk:[2,3,4,4,3,3,1,4,4,3,3,1,4,2,3,3,3,1,3]},
+{ar:"Engenharias",tp:"11–20 anos",at:"graduação",fu:"diariamente",fe:["Claude","Gemini","Gemini Notebook","DeepSeek"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:4,fo:"Sim, por conta própria",fa:4,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:2,pr:4,op:["Redução de carga administrativa","Apoio à pesquisa","Pensamento crítico e letramento em IA"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:7,fp:"não",es:["Comparação com histórico"],lk:[4,5,4,4,2,2,2,5,3,4,1,3,4,2,2,4,3,2,2]},
+{ar:"Engenharias",tp:"11–20 anos",at:"graduação",fu:"raramente",fe:["ChatGPT","Gemini"],fi:["Outro"],cf:4,fo:"Sim, pela instituição",fa:3,av:["Trabalhos teóricos","Redações"],po:"Não",ap:3,pr:4,op:["Personalização de conteúdo","Acessibilidade","Desenvolvimento profissional docente"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:3,fp:"não",es:["Nenhuma estratégia específica"],lk:[4,4,3,3,2,1,1,3,2,2,1,1,1,1,4,5,5,2,2]},
+{ar:"Engenharias",tp:"6–10 anos",at:"ambos",fu:"diariamente",fe:["Gemini","Gemini Notebook"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:4,fo:"Sim, pela instituição",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações"],po:"Sim, informal",ap:4,pr:4,op:["Produtividade","Redução de carga administrativa","Pensamento crítico e letramento em IA"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"sim",ad:8,fp:"não",es:["Arguição oral","Avaliação presencial controlada","Rascunhos/etapas"],lk:[3,3,3,3,3,3,3,3,3,3,3,3,5,5,3,3,3,3,3]},
+{ar:"Multidisciplinar",tp:"6–10 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT"],fi:["Elaboração de avaliações","Pesquisa","Produção de material didático"],cf:3,fo:"Não",fa:5,av:["Trabalhos práticos","Trabalhos teóricos","Resumos/resenhas"],po:"Não",ap:2,pr:4,op:["Produtividade","Redução de carga administrativa","Apoio à pesquisa"],avl:["Métodos alternativos (presencial/oral)"],ps:"não",ad:1,fp:"não tenho certeza",es:["Detector de IA","Volta a presenciais/manuscritas"],lk:[3,4,5,5,1,1,1,4,4,2,1,1,2,2,2,3,4,1,2]},
+{ar:"Engenharias",tp:"6–10 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Claude","Gemini","Grammarly"],fi:["Preparação de aulas","Produção de material didático"],cf:4,fo:"Não",fa:5,av:["Resolução de exercícios","Trabalhos teóricos","Resumos/resenhas"],po:"Não",ap:2,pr:4,op:["Redução de carga administrativa","Apoio à pesquisa","Ganhos com tutoria por IA"],avl:["Ajustei os critérios"],ps:"sim",ad:5,fp:"não",es:["Comparação com histórico","Rascunhos/etapas","Reflexão do estudante"],lk:[2,5,4,4,1,1,1,3,2,3,5,4,5,3,3,5,4,1,2]},
+{ar:"Ciências Agrárias",tp:"11–20 anos",at:"graduação",fu:"raramente",fe:["ChatGPT","Gemini"],fi:["Correção"],cf:1,fo:"Não",fa:4,av:["Trabalhos teóricos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:2,pr:2,op:["Apoio à identificação de dificuldades","Criatividade e inovação didática","Democratização do acesso"],avl:["Ainda não defini abordagem"],ps:"parcialmente",ad:1,fp:"não",es:["Nenhuma estratégia específica"],lk:[3,5,4,4,3,1,5,5,5,5,5,5,4,5,2,5,5,5,3]},
+{ar:"Engenharias",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini","Grammarly"],fi:["Correção","Pesquisa","Produção de material didático"],cf:4,fo:"Não",fa:3,av:["Trabalhos teóricos"],po:"Não",ap:2,pr:5,op:["Produtividade","Redução de carga administrativa","Apoio à pesquisa"],avl:["Ainda não defini abordagem"],ps:"sim",ad:3,fp:"não",es:["Nenhuma estratégia específica"],lk:[2,5,5,5,2,3,1,5,3,4,1,1,4,3,3,5,3,1,1]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","Grammarly"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Trabalhos práticos","Trabalhos teóricos","Redações","Códigos"],po:"Sim, informal",ap:2,pr:4,op:["Personalização de conteúdo","Redução de carga administrativa","Feedback imediato"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:8,fp:"não",es:["Comparação com histórico","Arguição oral","Avaliação presencial controlada"],lk:[3,4,5,5,3,4,2,3,1,1,1,5,3,5,3,2,3,2,1]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Claude"],fi:["Preparação de aulas","Elaboração de avaliações","Correção"],cf:4,fo:"Sim, por conta própria",fa:3,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Não",ap:3,pr:5,op:["Produtividade","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Mantenho os mesmos critérios"],ps:"sim",ad:1,fp:"não",es:["Nenhuma estratégia específica"],lk:[3,3,5,4,2,2,1,5,3,1,1,2,3,1,1,4,2,1,5]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT"],fi:["Correção","Pesquisa"],cf:4,fo:"Sim, por conta própria",fa:4,av:["Trabalhos teóricos","TCC"],po:"Não",ap:2,pr:4,op:["Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Ainda não defini abordagem"],ps:"parcialmente",ad:6,fp:"não tenho certeza",es:["Arguição oral"],lk:[2,3,3,3,2,2,1,5,3,3,1,1,3,3,3,5,3,1,3]},
+{ar:"Ciências Biológicas",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini","LeapSpace"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:4,fo:"Sim, por conta própria",fa:3,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:4,pr:3,op:["Personalização de conteúdo","Produtividade","Criatividade e inovação didática"],avl:["Ajustei os critérios"],ps:"sim",ad:null,fp:"não tenho certeza",es:["Nenhuma estratégia específica"],lk:[3,3,3,3,3,3,3,null,3,3,1,1,3,3,null,3,3,3,3]},
+{ar:"Ciências Exatas e da Terra",tp:"6–10 anos",at:"ambos",fu:"diariamente",fe:["Claude","Gemini","Gemini Notebook","SciSpace"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:5,fo:"Sim, por conta própria",fa:5,av:["Trabalhos práticos","Códigos"],po:"Sim, informal",ap:4,pr:5,op:["Apoio à identificação de dificuldades","Apoio à pesquisa","Pensamento crítico e letramento em IA"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:10,fp:"não",es:["Arguição oral","Volta a presenciais/manuscritas","Reflexão do estudante"],lk:[1,1,3,3,5,5,5,1,2,1,1,5,5,3,5,5,5,1,1]},
+{ar:"Engenharias",tp:"11–20 anos",at:"graduação",fu:"mensalmente",fe:["ChatGPT","Gemini","Gemini Notebook"],fi:["Elaboração de avaliações","Correção","Pesquisa"],cf:1,fo:"Não",fa:5,av:["Provas","Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Códigos","Resumos/resenhas"],po:"Sim, informal",ap:1,pr:4,op:["Produtividade","Apoio à pesquisa","Democratização do acesso"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:10,fp:"não",es:["Detector de IA","Arguição oral","Volta a presenciais/manuscritas"],lk:[3,3,5,5,1,5,1,3,1,1,1,5,4,1,5,3,1,1,4]},
+{ar:"Ciências Agrárias",tp:">20 anos",at:"graduação",fu:"diariamente",fe:["Claude","Gemini","Gemini Notebook"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Sim, por conta própria",fa:2,av:["Trabalhos teóricos"],po:"Sim, formalizada",ap:2,pr:5,op:["Personalização de conteúdo","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Ainda não defini abordagem"],ps:"não",ad:0,fp:"não tenho certeza",es:["Nenhuma estratégia específica"],lk:[5,5,5,5,1,5,1,5,5,1,1,1,1,1,1,1,1,1,1]},
+{ar:"Engenharias",tp:"6–10 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini Notebook"],fi:["Preparação de aulas","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Redações","Resumos/resenhas"],po:"Não",ap:3,pr:5,op:["Produtividade","Redução de carga administrativa","Ganhos com tutoria por IA"],avl:["Ainda não defini abordagem"],ps:"parcialmente",ad:5,fp:"não",es:["Reflexão do estudante"],lk:[1,5,5,5,2,2,1,5,3,2,1,2,2,2,3,5,3,1,1]},
+{ar:"Ciências Exatas e da Terra",tp:"6–10 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Claude","Gemini","Microsoft Copilot"],fi:["Preparação de aulas"],cf:3,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos teóricos","Redações"],po:"Sim, informal",ap:3,pr:3,op:["Acessibilidade","Criatividade e inovação didática","Democratização do acesso"],avl:["Ajustei os critérios"],ps:"sim",ad:7,fp:"não",es:["Comparação com histórico","Arguição oral","Rascunhos/etapas"],lk:[2,3,5,4,2,1,1,5,4,2,3,4,2,2,3,null,2,2,2]},
+{ar:"Engenharias",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","DeepSeek","Grammarly"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa"],cf:3,fo:"Não",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Outro"],po:"Não",ap:3,pr:4,op:["Personalização de conteúdo","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:3,fp:"não",es:["Arguição oral","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[2,5,4,5,1,1,1,5,5,1,1,2,5,4,2,5,4,2,1]},
+{ar:"Ciências Biológicas",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini","LeapSpace"],fi:["Elaboração de avaliações","Correção","Pesquisa"],cf:4,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos teóricos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:2,pr:4,op:["Acessibilidade","Redução de carga administrativa","Apoio à pesquisa"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:3,fp:"não",es:["Nenhuma estratégia específica"],lk:[3,4,5,5,3,2,1,1,4,3,1,2,5,3,3,5,5,1,4]},
+{ar:"Engenharias",tp:"6–10 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:4,fo:"Não",fa:4,av:["Trabalhos teóricos"],po:"Não",ap:3,pr:4,op:["Personalização de conteúdo","Criatividade e inovação didática","Desenvolvimento profissional docente"],avl:["Mantenho os mesmos critérios"],ps:"parcialmente",ad:5,fp:"não",es:["Comparação com histórico","Arguição oral"],lk:[3,5,5,5,4,3,1,5,5,3,3,2,3,3,5,4,3,3,3]},
+{ar:"Ciências Agrárias",tp:"<2 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini Notebook","Grammarly"],fi:["Elaboração de avaliações","Correção","Produção de material didático"],cf:3,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos teóricos"],po:"Ainda não, pretendo definir",ap:3,pr:4,op:["Criatividade e inovação didática","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Ajustei os critérios"],ps:"sim",ad:8,fp:"não",es:["Comparação com histórico","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[4,4,5,5,2,2,1,5,5,2,4,2,4,4,2,5,2,2,1]},
+{ar:"Linguística/Letras/Artes",tp:"2–5 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT","Gemini","Gemini Notebook"],fi:["Preparação de aulas","Produção de material didático","Comunicação administrativa"],cf:4,fo:"Sim, por conta própria",fa:4,av:["Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:3,op:["Acessibilidade","Redução de carga administrativa","Criatividade e inovação didática"],avl:["Ainda não defini abordagem"],ps:"sim",ad:3,fp:"não tenho certeza",es:["Nenhuma estratégia específica"],lk:[3,3,4,4,3,3,3,4,3,3,3,3,3,3,4,4,4,4,3]},
+{ar:"Engenharias",tp:">20 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT","Claude","Gemini","Perplexity"],fi:["Preparação de aulas","Outro"],cf:4,fo:"Sim, por conta própria",fa:3,av:["Trabalhos teóricos","Redações"],po:"Sim, informal",ap:4,pr:5,op:["Produtividade","Outro"],avl:["Não uso trabalhos dissertativos"],ps:"sim",ad:10,fp:"não",es:["Nenhuma estratégia específica"],lk:[2,2,2,2,2,1,2,2,1,1,2,3,null,3,5,3,2,3,1]},
+{ar:"Ciências Exatas e da Terra",tp:"6–10 anos",at:"ambos",fu:"raramente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Pesquisa"],cf:3,fo:"Não",fa:5,av:["Resolução de exercícios","Trabalhos teóricos"],po:"Sim, formalizada",ap:2,pr:5,op:["Personalização de conteúdo","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:5,fp:"não tenho certeza",es:["Detector de IA","Comparação com histórico","Avaliação presencial controlada"],lk:[2,3,4,4,1,1,1,5,3,4,1,1,4,3,3,3,2,1,5]},
+{ar:"Engenharias",tp:">20 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Gemini","Gemini Notebook","DeepSeek","Microsoft Copilot"],fi:["Preparação de aulas","Pesquisa","Produção de material didático"],cf:4,fo:"Sim, por conta própria",fa:2,av:["Trabalhos teóricos"],po:"Não",ap:3,pr:4,op:["Personalização de conteúdo","Produtividade","Apoio à pesquisa"],avl:["Ajustei os critérios"],ps:"sim",ad:2,fp:"não",es:["Arguição oral","Rascunhos/etapas","Reflexão do estudante"],lk:[2,2,3,2,2,2,1,2,1,1,1,2,2,1,1,4,3,1,1]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"ambos",fu:"raramente",fe:["Gemini"],fi:["Pesquisa"],cf:3,fo:"Não",fa:3,av:["Trabalhos teóricos","TCC"],po:"Não",ap:3,pr:3,op:["Produtividade","Apoio à pesquisa","Pensamento crítico e letramento em IA"],avl:["Ajustei os critérios"],ps:"sim",ad:7,fp:"sim",es:["Arguição oral"],lk:[1,1,3,4,1,3,1,3,2,2,3,3,2,2,3,3,3,1,2]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Gemini Notebook","Microsoft Copilot"],fi:["Preparação de aulas","Pesquisa","Produção de material didático"],cf:4,fo:"Sim, por conta própria",fa:3,av:["Trabalhos teóricos","Resumos/resenhas"],po:"Sim, informal",ap:3,pr:5,op:["Personalização de conteúdo","Criatividade e inovação didática","Pensamento crítico e letramento em IA"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:5,fp:"não",es:["Comparação com histórico","Arguição oral","Avaliação presencial controlada"],lk:[2,3,3,3,2,1,3,5,3,2,1,2,4,4,2,4,2,2,1]},
+{ar:"Ciências Biológicas",tp:">20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","Perplexity","Grammarly"],fi:["Correção","Pesquisa","Outro"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos teóricos","Resumos/resenhas"],po:"Sim, informal",ap:2,pr:3,op:["Produtividade","Redução de carga administrativa","Pensamento crítico e letramento em IA"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:6,fp:"não",es:["Comparação com histórico","Arguição oral"],lk:[2,4,5,5,1,1,1,5,2,2,null,1,4,4,2,5,5,1,1]},
+{ar:"Ciências Exatas e da Terra",tp:">20 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT","Claude"],fi:["Preparação de aulas","Pesquisa","Produção de material didático"],cf:5,fo:"Sim, por conta própria",fa:1,av:["Outro"],po:"Não",ap:5,pr:5,op:["Personalização de conteúdo","Criatividade e inovação didática","Desenvolvimento profissional docente"],avl:["Mantenho os mesmos critérios"],ps:"sim",ad:10,fp:"não",es:["Avaliação presencial controlada"],lk:[1,1,1,2,1,3,1,1,1,1,1,3,3,1,1,1,1,1,1]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini","DeepSeek","Grammarly"],fi:["Correção","Produção de material didático","Comunicação administrativa"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Códigos"],po:"Sim, informal",ap:1,pr:4,op:["Produtividade","Redução de carga administrativa"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:7,fp:"não",es:["Arguição oral","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[2,4,5,5,4,3,2,4,2,3,2,3,5,2,3,5,5,4,1]},
+{ar:"Multidisciplinar",tp:"11–20 anos",at:"graduação",fu:"raramente",fe:["ChatGPT"],fi:["Comunicação administrativa"],cf:4,fo:"Não",fa:4,av:["Trabalhos práticos"],po:"Não",ap:2,pr:3,op:["Personalização de conteúdo","Apoio à identificação de dificuldades","Criatividade e inovação didática"],avl:["Mantenho os mesmos critérios"],ps:"sim",ad:0,fp:"não",es:["Nenhuma estratégia específica"],lk:[3,3,5,5,1,1,1,5,5,2,3,1,1,1,5,5,5,1,3]},
+{ar:"Engenharias",tp:"6–10 anos",at:"graduação",fu:"diariamente",fe:["Gemini","Gemini Notebook"],fi:["Preparação de aulas","Produção de material didático"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Trabalhos teóricos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:2,pr:3,op:["Acessibilidade","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Ajustei os critérios"],ps:"parcialmente",ad:6,fp:"não tenho certeza",es:["Comparação com histórico","Arguição oral"],lk:[4,5,4,5,2,4,2,3,3,1,3,2,1,5,4,5,5,3,1]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Claude","Gemini","Perplexity","Microsoft Copilot","Grammarly"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:5,fo:"Sim, por conta própria",fa:5,av:["Provas","Resolução de exercícios","Trabalhos teóricos","Redações"],po:"Ainda não, pretendo definir",ap:3,pr:5,op:["Redução de carga administrativa","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:null,fp:"sim",es:["Detector de IA","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[1,2,5,5,5,1,1,1,1,1,1,3,5,3,3,5,1,1,1]},
+{ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"mensalmente",fe:["ChatGPT","Gemini","Gemini Notebook"],fi:["Correção","Pesquisa"],cf:5,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Códigos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:5,op:["Produtividade","Apoio à pesquisa","Democratização do acesso"],avl:["Ajustei os critérios"],ps:"parcialmente",ad:7,fp:"não",es:["Comparação com histórico","Avaliação presencial controlada","Rascunhos/etapas"],lk:[1,2,4,4,3,3,1,1,1,1,3,2,4,2,2,3,3,3,1]},
+{ar:"Ciências da Saúde",tp:">20 anos",at:"ambos",fu:"raramente",fe:["ChatGPT","Gemini","Gemini Notebook"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático"],cf:3,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Resumos/resenhas"],po:"Não sei",ap:3,pr:3,op:["Apoio à identificação de dificuldades","Feedback imediato","Criatividade e inovação didática"],avl:["Ainda não defini abordagem"],ps:"parcialmente",ad:5,fp:"não",es:["Nenhuma estratégia específica"],lk:[2,3,4,4,2,1,1,3,3,2,2,2,3,3,2,3,3,1,2]},
+{ar:"Ciências Biológicas",tp:"6–10 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT"],fi:["Correção"],cf:4,fo:"Não",fa:4,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Não",ap:3,pr:4,op:["Acessibilidade","Redução de carga administrativa","Desenvolvimento profissional docente"],avl:["Ainda não defini abordagem"],ps:"não",ad:0,fp:"não",es:["Nenhuma estratégia específica"],lk:[4,5,5,5,2,2,1,5,5,3,2,2,2,1,1,4,3,1,3]}
+];
+/* ===== CONFIG ===== */
+let COL,CAT,DIV,RAMP11,HEATRGB,PALACTIVE;
+const PAL={
+ okabe:{nome:'Okabe–Ito',vars:{terra:'#d55e00',teal:'#009e73',gold:'#e69f00',plum:'#cc79a7',neg:'#d55e00',neu:'#c9c1b4',pos:'#0072b2'},COL:{terra:'#d55e00',teal:'#009e73',gold:'#e69f00',plum:'#cc79a7',slate:'#0072b2',olive:'#56b4e9',rose:'#cc79a7',muted:'#9a9186',ink:'#2b2521',line:'#e6dccd'},CAT:['#0072b2','#d55e00','#009e73','#e69f00','#cc79a7','#56b4e9','#000000','#9a9186'],DIV:['#d55e00','#e69f00','#c9c1b4','#56b4e9','#0072b2'],RAMP11:['#e2edf5','#cfe0ee','#b7d2e6','#9cc2dd','#7fb0d3','#609ec8','#418cbd','#2a7fb4','#1877ae','#0b73ac','#0072b2'],HEATRGB:'0,114,178'},
+ terra:{nome:'Terrosa',vars:{terra:'#bd5a34',teal:'#2f7d6e',gold:'#c19026',plum:'#7a4a63',neg:'#c05f38',neu:'#cdbb9d',pos:'#2f7d6e'},COL:{terra:'#bd5a34',teal:'#2f7d6e',gold:'#c19026',plum:'#7a4a63',slate:'#4a6b7c',olive:'#8a7d2e',rose:'#b06a7a',muted:'#a89a86',ink:'#2b2521',line:'#e6dccd'},CAT:['#bd5a34','#2f7d6e','#c19026','#7a4a63','#4a6b7c','#8a7d2e','#b06a7a','#a89a86'],DIV:['#a23f1f','#d68f63','#dccbab','#6fae9f','#2f7d6e'],RAMP11:['#a23f1f','#b0562f','#bd6a3a','#c08a4a','#bfa257','#b6ac66','#93a86c','#6f9e77','#4a8f74','#39836f','#2f7d6e'],HEATRGB:'47,125,110'}
+};
+function setPalette(name){const p=PAL[name];PALACTIVE=name;COL=p.COL;CAT=p.CAT;DIV=p.DIV;RAMP11=p.RAMP11;HEATRGB=p.HEATRGB;const r=document.documentElement.style;Object.entries(p.vars).forEach(([k,v])=>r.setProperty('--'+k,v));if(window.Chart)Chart.defaults.color=COL.ink;}
+setPalette('okabe');
+const ORD={
+ freq:["nunca","raramente","mensalmente","semanalmente","diariamente"],
+ tempo:["<2 anos","2–5 anos","6–10 anos","11–20 anos",">20 anos"],
+ form:["Sim, pela instituição","Sim, por conta própria","Não"],
+ pol:["Sim, formalizada","Sim, informal","Ainda não, pretendo definir","Não","Não sei"],
+ proc:["sim","parcialmente","não"],
+ fp:["sim","não tenho certeza","não"]
+};
+const LK=[
+ {g:"Detecção e autoria",s:"Tenho dificuldade em identificar trabalho produzido por IA"},
+ {g:"Detecção e autoria",s:"A IA tornou mais difícil avaliar a autoria dos trabalhos"},
+ {g:"Confiança no conteúdo",s:"Receio que a IA forneça informações incorretas/enviesadas"},
+ {g:"Confiança no conteúdo",s:"Não confio plenamente na precisão dos conteúdos de IA"},
+ {g:"Decisões e punição",s:"É justo penalizar só com base em um detector de IA"},
+ {g:"Decisões e punição",s:"Sinto-me seguro para decidir sobre suspeita de uso de IA"},
+ {g:"Capacitação e preparo",s:"Recebi formação adequada para lidar com IA"},
+ {g:"Capacitação e preparo",s:"Sinto falta de capacitação institucional sobre IA"},
+ {g:"Capacitação e preparo",s:"Sinto insegurança profissional diante do avanço da IA"},
+ {g:"Capacitação e preparo",s:"Prefiro evitar/restringir IA por não me sentir preparado"},
+ {g:"Diretrizes institucionais",s:"A universidade oferece diretrizes claras sobre IA"},
+ {g:"Diretrizes institucionais",s:"Sei o que é permitido ou proibido sobre IA"},
+ {g:"Mudança de prática",s:"Voltei a métodos tradicionais por causa da IA"},
+ {g:"Equidade e acesso",s:"Percebo diferenças de acesso a IA entre estudantes"},
+ {g:"Equidade e acesso",s:"A IA pode ampliar desigualdades já existentes"},
+ {g:"Ética e vieses",s:"Tenho preocupações éticas com os dados dos estudantes"},
+ {g:"Ética e vieses",s:"Tenho preocupação com vieses nas respostas de IA"},
+ {g:"Infraestrutura",s:"A infraestrutura da universidade é adequada para IA"},
+ {g:"Infraestrutura",s:"As ferramentas de IA são tecnicamente complexas de usar"}
+];
+
+/* ===== HELPERS ===== */
+const $=s=>document.querySelector(s);
+const pct=(n,d)=>d?Math.round(n/d*100):0;
+const mean=(rows,k)=>{const v=rows.map(r=>r[k]).filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;};
+function distScale(rows,k){const c=[0,0,0,0,0];rows.forEach(r=>{const v=r[k];if(v>=1&&v<=5)c[v-1]++;});return c;}
+function distScaleN(rows,k){return rows.map(r=>r[k]).filter(x=>x!=null).length;}
+function countOrder(rows,k,order){const m={};order.forEach(o=>m[o]=0);rows.forEach(r=>{if(r[k]!=null&&m.hasOwnProperty(r[k]))m[r[k]]++;});return order.map(o=>m[o]);}
+function multiCount(rows,k){const m=new Map();rows.forEach(r=>(r[k]||[]).forEach(v=>m.set(v,(m.get(v)||0)+1)));return[...m.entries()].map(([label,count])=>({label,count})).sort((a,b)=>b.count-a.count);}
+function lkAgree(rows,i){const v=rows.map(r=>r.lk[i]).filter(x=>x!=null);const a=v.filter(x=>x>=4).length;return{n:v.length,agree:a,pctAgree:pct(a,v.length)};}
+function wrap(str,max){const w=str.split(' ');const out=[];let l='';w.forEach(x=>{if((l+' '+x).trim().length>max){out.push(l.trim());l=x;}else l+=' '+x;});if(l.trim())out.push(l.trim());return out;}
+
+Chart.defaults.font.family="'Avenir Next','Optima','Segoe UI',sans-serif";
+Chart.defaults.font.size=12;Chart.defaults.color=COL.ink;Chart.defaults.plugins.legend.display=false;
+Chart.defaults.plugins.tooltip.backgroundColor='#2b2521';Chart.defaults.plugins.tooltip.padding=10;Chart.defaults.plugins.tooltip.cornerRadius=8;Chart.defaults.plugins.tooltip.titleFont={weight:'600'};Chart.defaults.maintainAspectRatio=false;
+
+const charts={};
+function make(id,cfg){if(charts[id])charts[id].destroy();const el=document.getElementById(id);if(!el)return;charts[id]=new Chart(el.getContext('2d'),cfg);}
+const gridX={grid:{color:COL.line,drawBorder:false},ticks:{precision:0}};
+const gridY={grid:{display:false}};
+
+/* horizontal ranking bar */
+function hbar(id,items,color,total){
+ make(id,{type:'bar',data:{labels:items.map(i=>i.label),datasets:[{data:items.map(i=>i.count),backgroundColor:color,borderRadius:4,borderSkipped:false,barThickness:'flex',maxBarThickness:26}]},
+ options:{indexAxis:'y',layout:{padding:{right:26}},scales:{x:{...gridX,beginAtZero:true},y:{...gridY,ticks:{font:{size:11.5},autoSkip:false}}},
+ plugins:{tooltip:{callbacks:{label:c=>`${c.raw} docentes · ${pct(c.raw,total)}%`}},
+ datalabels:false}}});
+}
+/* vertical scale 1-5 */
+function vscale(id,counts,color,labels){
+ make(id,{type:'bar',data:{labels:labels||['1','2','3','4','5'],datasets:[{data:counts,backgroundColor:color,borderRadius:5,borderSkipped:false,maxBarThickness:60}]},
+ options:{scales:{x:{...gridY,ticks:{font:{size:12}}},y:{...gridX,beginAtZero:true}},plugins:{tooltip:{callbacks:{label:c=>`${c.raw} respostas`}}}}});
+}
+/* doughnut */
+function donut(id,labels,data,colors){
+ make(id,{type:'doughnut',data:{labels,datasets:[{data,backgroundColor:colors,borderColor:'#fffdf9',borderWidth:2}]},
+ options:{cutout:'62%',plugins:{legend:{display:true,position:'right',labels:{boxWidth:12,boxHeight:12,font:{size:11.5},padding:8}},tooltip:{callbacks:{label:c=>`${c.label}: ${c.raw} (${pct(c.raw,data.reduce((a,b)=>a+b,0))}%)`}}}}});
+}
+
+/* ===== FILTERS ===== */
+const state={ar:'',tp:'',at:''};
+function opts(sel,key,order){
+ const counts={};R.forEach(r=>counts[r[key]]=(counts[r[key]]||0)+1);
+ let keys=Object.keys(counts);
+ if(order)keys=order.filter(o=>counts[o]);else keys.sort((a,b)=>counts[b]-counts[a]);
+ sel.innerHTML='<option value="">Todas ('+R.length+')</option>'+keys.map(k=>`<option value="${k}">${k} (${counts[k]})</option>`).join('');
+}
+function subset(){return R.filter(r=>(!state.ar||r.ar===state.ar)&&(!state.tp||r.tp===state.tp)&&(!state.at||r.at===state.at));}
+
+/* ===== BUILD SECTION SHELLS ===== */
+$('#sections').innerHTML=`
+<section class="block"><div class="blockhead"><span class="num">01</span><h2>Perfil dos respondentes</h2><span class="note">quem respondeu</span></div>
+ <div class="grid g3">
+  <div class="card" style="grid-column:span 1"><h3>Área de conhecimento</h3><p class="cap">docentes por grande área</p><div class="chartbox tall"><canvas id="cArea"></canvas></div></div>
+  <div class="card"><h3>Tempo de docência</h3><p class="cap">anos de carreira</p><div class="chartbox tall"><canvas id="cTempo"></canvas></div></div>
+  <div class="card"><h3>Atuação</h3><p class="cap">nível de ensino</p><div class="chartbox" style="height:clamp(200px,26vh,240px)"><canvas id="cAtua"></canvas></div>
+   <h3 style="margin-top:16px">Formação em IA</h3><p class="cap">capacitação recebida</p><div class="chartbox" style="height:clamp(180px,22vh,220px)"><canvas id="cForm"></canvas></div></div>
+ </div></section>
+
+<section class="block"><div class="blockhead"><span class="num">02</span><h2>Uso pessoal de IA pelos docentes</h2><span class="note">prática própria</span></div>
+ <div class="grid g23">
+  <div class="card"><h3>Ferramentas utilizadas</h3><p class="cap">múltipla escolha — % sobre o recorte</p><div class="chartbox tall"><canvas id="cTools"></canvas></div></div>
+  <div class="card"><h3>Frequência de uso</h3><p class="cap">com que frequência usam IA</p><div class="chartbox tall"><canvas id="cFreq"></canvas></div></div>
+ </div>
+ <div class="grid g23" style="margin-top:16px">
+  <div class="card"><h3>Finalidades de uso</h3><p class="cap">múltipla escolha</p><div class="chartbox"><canvas id="cFins"></canvas></div></div>
+  <div class="card"><h3>Nível de confiança no uso</h3><p class="cap">1 pouco · 5 muito confiante</p><div class="chartbox"><canvas id="cConf"></canvas></div></div>
+ </div></section>
+
+<section class="block"><div class="blockhead"><span class="num">03</span><h2>Percepção do uso pelos discentes</h2><span class="note">o que veem em sala</span></div>
+ <div class="grid g3">
+  <div class="card"><h3>Frequência percebida nos alunos</h3><p class="cap">1 &lt;10% · 5 &gt;90% dos trabalhos</p><div class="chartbox"><canvas id="cFreqAl"></canvas></div></div>
+  <div class="card"><h3>Onde percebem mais uso</h3><p class="cap">tipos de atividade — múltipla escolha</p><div class="chartbox"><canvas id="cAtiv"></canvas></div></div>
+  <div class="card"><h3>Política de uso na disciplina</h3><p class="cap">existe regra definida?</p><div class="chartbox"><canvas id="cPol"></canvas></div></div>
+ </div></section>
+
+<section class="block"><div class="blockhead"><span class="num">04</span><h2>Impactos e avaliação</h2><span class="note">efeitos percebidos</span></div>
+ <div class="grid g3">
+  <div class="card"><h3>Efeito na aprendizagem</h3><p class="cap">1 muito negativo · 5 muito positivo</p><div class="chartbox"><canvas id="cAprend"></canvas></div></div>
+  <div class="card"><h3>Efeito na produtividade docente</h3><p class="cap">1 muito negativo · 5 muito positivo</p><div class="chartbox"><canvas id="cProd"></canvas></div></div>
+  <div class="card"><h3>Já viu um falso positivo?</h3><p class="cap">aluno acusado sem ter usado IA</p><div class="chartbox"><canvas id="cFalso"></canvas></div></div>
+ </div>
+ <div class="grid g23" style="margin-top:16px">
+  <div class="card"><h3>Adaptação da avaliação à realidade da IA</h3><p class="cap">0 nada adaptada · 10 totalmente adaptada — distribuição das respostas</p><div class="chartbox"><canvas id="cAdapt"></canvas></div></div>
+  <div class="card"><h3>Estratégias de avaliação usadas</h3><p class="cap">múltipla escolha</p><div class="chartbox"><canvas id="cEstr"></canvas></div></div>
+ </div>
+ <div class="card" style="margin-top:16px"><h3>Oportunidades identificadas para a IA</h3><p class="cap">até 3 por docente — % sobre o recorte</p><div class="chartbox tall"><canvas id="cOport"></canvas></div></div>
+</section>
+
+<section class="block"><div class="blockhead"><span class="num">05</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 95 respostas</span></div>
+ <div class="card"><h3>Frequência de uso por área de conhecimento</h3><p class="cap">cor = % dos docentes da linha naquela frequência · número = docentes · "uso freq." = semanal + diário</p>
+  <div id="heat" class="heat"></div>
+  <p class="cap" style="margin-top:12px" id="heatNote"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Frequência de uso por tempo de docência</h3><p class="cap">mesma leitura, agrupando por anos de carreira</p>
+  <div id="heatT" class="heat"></div>
+  <p class="cap" style="margin-top:12px" id="heatNoteT"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Política de uso × frequência de IA percebida nos alunos</h3><p class="cap">linhas = política na disciplina · colunas = frequência percebida (1 = &lt;10% · 5 = &gt;90% dos trabalhos) · "alto" = níveis 4–5</p>
+  <div id="heatP" class="heat"></div>
+  <p class="cap" style="margin-top:12px" id="heatNoteP"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Frequência de uso × efeito na produtividade docente</h3><p class="cap">linhas = frequência com que o docente usa IA · colunas = efeito percebido na produtividade (1 = muito negativo · 5 = muito positivo) · "positivo" = níveis 4–5</p>
+  <div id="heatFP" class="heat"></div>
+  <p class="cap" style="margin-top:12px" id="heatNoteFP"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Estratégias de avaliação × adaptação da avaliação</h3><p class="cap">linhas = estratégias usadas (múltipla escolha; um docente pode aparecer em várias) · colunas = faixa de adaptação da avaliação à IA · métrica = média (0–10)</p>
+  <div id="heatEA" class="heat h3"></div>
+  <p class="cap" style="margin-top:12px" id="heatNoteEA"></p></div>
+</section>
+
+<section class="block"><div class="blockhead"><span class="num">06</span><h2>Concordância com afirmações sobre IA</h2><span class="note">19 afirmações · ordem decrescente de discordância</span></div>
+ <div class="card">
+  <p class="cap" style="margin-bottom:10px">Itens ordenados de cima para baixo pela maior parcela de discordância (níveis 1–2). Passe o mouse para ver o % que discorda de cada afirmação.</p>
+  <div class="likert-legend" id="lkLegend"></div>
+  <div class="chartbox likert"><canvas id="cLikert"></canvas></div>
+ </div></section>
+
+<section class="block"><div class="blockhead"><span class="num">07</span><h2>Leituras principais</h2><span class="note">síntese automática · recalcula a cada nova resposta</span></div>
+ <p class="cap" style="margin:-4px 0 16px">Sínteses geradas automaticamente a partir de <b id="readN"></b> respostas. Os números se atualizam sozinhos conforme novos docentes respondem.</p>
+ <div id="readings"></div>
+</section>
+
+<section class="block"><div class="blockhead"><span class="num">08</span><h2>Experiências positivas concretas</h2><span class="note">síntese dos relatos abertos</span></div>
+ <p class="cap" style="margin:-4px 0 16px">Síntese qualitativa das respostas à pergunta "Descreva uma experiência positiva concreta envolvendo IA (sua ou de um aluno)". A maior parte dos 88 respondentes trouxe um exemplo concreto; os relatos se concentram em cinco frentes. Os usos voltados ao próprio trabalho docente predominam, mas cresce um conjunto de casos centrados no aluno.</p>
+ <div class="grid g2">
+  <div class="card"><h3>Preparação de aulas e material didático</h3><p class="cap">A frente mais citada — gerar, estruturar e atualizar conteúdo de aula.</p>
+   <blockquote class="qz">Os fluxogramas, quadros comparativos e a sequência metodológica com o uso de IA ficam muito bons.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">A IA descobre vídeos didáticos e passo aos alunos ao menos um por aula para ilustrar os tópicos que estamos estudando.<span>Ciências Sociais Aplicadas</span></blockquote>
+   <blockquote class="qz">O tempo para a preparação de uma aula foi fantástico.<span>Ciências da Saúde</span></blockquote></div>
+  <div class="card"><h3>Pesquisa, escrita e revisão</h3><p class="cap">Ganho de produtividade na produção acadêmica e administrativa do docente.</p>
+   <blockquote class="qz">Uso diariamente para escrever e-mails, limpar códigos, revisar textos e planejar atividades, incluindo aulas.<span>Ciências Biológicas</span></blockquote>
+   <blockquote class="qz">Apoio na revisão de artigos; a linguagem fica mais clara e organizada, com ajustes finos que eu levaria muito tempo para conseguir.<span>Ciências Sociais Aplicadas</span></blockquote>
+   <blockquote class="qz">Resposta a revisores de periódicos, auxílio na melhoria de textos e análise estatística de pesquisa.<span>Ciências da Saúde</span></blockquote></div>
+  <div class="card"><h3>Casos concretos com alunos</h3><p class="cap">Quando a IA virou objeto de aprendizagem ativa e resolução real de problemas.</p>
+   <blockquote class="qz">Uma aluna gerou, rápida e automaticamente, um estudo de insolação na volumetria de um prédio com ajuda do Claude; a partir daí comprovamos a adequação de um recuo lateral maior.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">Um aluno usou dados da própria empresa num trabalho de banco de dados, apresentou aos gestores e está propondo um artigo para o SIIEPE.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">Orientados apresentarão trabalhos com IA para tratar dados climatológicos e para classificar a cor de méis por análise sensorial.<span>Ciências Agrárias</span></blockquote></div>
+  <div class="card"><h3>Acessibilidade e inclusão</h3><p class="cap">Adaptação de conteúdo para estudantes com necessidades específicas.</p>
+   <blockquote class="qz">Um aluno com autismo usou as ferramentas para adaptar os conteúdos; criei prompts específicos, revisei os documentos e ele se sentiu mais integrado.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Desenvolvimento de recursos de acessibilidade mediados por IA (Projeto PAPin).<span>Ciências Humanas</span></blockquote></div>
+  <div class="card"><h3>Correção, normas e criação de avaliações</h3><p class="cap">Ortografia, formatação, conformidade e elaboração de exercícios.</p>
+   <blockquote class="qz">Elaborar enunciados de exercícios com resultados exatos, tarefa que antes me tomava muito tempo, ficou mais simples.<span>Ciências Sociais Aplicadas</span></blockquote>
+   <blockquote class="qz">O Gemini Notebook tem sido um aliado na conferência de formatação e normas do TCC — sem dispensar a verificação do orientador.<span>Ciências Agrárias</span></blockquote></div>
+  <div class="card"><h3>Letramento em IA e pensamento crítico</h3><p class="cap">A ferramenta como objeto de discussão e desenvolvimento de senso crítico.</p>
+   <blockquote class="qz">Gosto de debater com a IA sobre propostas de atividades e preparar dinâmicas mais interativas, como debates a partir de cenários (role playing).<span>Ciências Sociais Aplicadas</span></blockquote>
+   <blockquote class="qz">Análise do material produzido, discutindo o prompt utilizado e os vieses dos resultados.<span>Ciências Humanas</span></blockquote></div>
+ </div></section>
+
+<section class="block"><div class="blockhead"><span class="num">09</span><h2>Experiências negativas e desafios</h2><span class="note">síntese dos relatos abertos</span></div>
+ <p class="cap" style="margin:-4px 0 16px">Síntese qualitativa das respostas à pergunta "Descreva uma experiência negativa ou desafiadora concreta envolvendo IA (sua ou de um aluno)". Os relatos convergem para cinco desafios. O mais recorrente, de longe, é a terceirização do pensamento — o aluno que entrega sem se apropriar. Docentes das Engenharias trouxeram os relatos mais detalhados.</p>
+ <div class="grid g2">
+  <div class="card"><h3>Terceirização do pensamento</h3><p class="cap">O desafio mais citado: entregar o que a IA produziu sem ler, entender ou se apropriar.</p>
+   <blockquote class="qz">Os alunos, às vezes, sequer leem o que foi escrito pela IA, entregando textos sem nenhuma relação com o que foi solicitado.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Não querem nem ler os conteúdos: jogam na IA e pedem resumos; quando é um trabalho, pedem o relatório. Reduzi esse tipo de atividade, pois não há aprendizado nisso.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">O principal problema é quando a IA substitui o processo de aprendizagem em vez de apoiá-lo.<span>Engenharias</span></blockquote></div>
+  <div class="card"><h3>Alucinações e erros propagados</h3><p class="cap">Texto bem escrito, mas com referências inexistentes e informação incorreta — que o aluno não revisa.</p>
+   <blockquote class="qz">A ferramenta produz textos bem estruturados, mas com referências inexistentes ou informações cientificamente incorretas; o desafio é fazer o aluno revisar criticamente o material gerado.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">Alunos que não sabem usar e propagam os erros da IA.<span>Ciências da Saúde</span></blockquote></div>
+  <div class="card"><h3>Fraude e detecção difícil</h3><p class="cap">Cópia em provas e desempenho inflado em atividades assíncronas, difíceis de comprovar.</p>
+   <blockquote class="qz">Vários alunos finalizaram exercícios com números sorteados em poucos minutos e tiraram nota máxima; ao colar as questões no ChatGPT, ele deu exatamente os mesmos valores. Na prova, não souberam resolver problemas semelhantes.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Uns alunos colaram numa prova usando IA e copiaram tudo, mesmo o que não tinha relação com a matéria.<span>Engenharias</span></blockquote></div>
+  <div class="card"><h3>Dependência e uso superficial</h3><p class="cap">Prompts feitos "de qualquer jeito" e dependência que esvazia o esforço cognitivo.</p>
+   <blockquote class="qz">Percebi a dependência de um aluno: numa lista com gabarito, vários colavam respostas de IA em toda a lista, desvirtuando o exercício, que era justamente fazê-los pensar.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Utilizar prompts elaborados de maneira ligeira.<span>Engenharias</span></blockquote></div>
+  <div class="card"><h3>Despreparo e erosão da autoridade</h3><p class="cap">O aluno não sustenta o que entregou; e a IA passa a ser usada para contestar o docente.</p>
+   <blockquote class="qz">Durante a avaliação de uma atividade prática, o aluno teve dificuldade em explicar as constatações feitas no próprio relatório final.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Alunos que questionam fatos apresentados pelos professores e pelas bibliografias baseados em consultas a mecanismos de inteligência artificial generativa.<span>Ciências Exatas e da Terra</span></blockquote></div>
+ </div></section>
+
+<section class="block"><div class="blockhead"><span class="num">10</span><h2>Decisões diante de suspeita de uso de IA</h2><span class="note">síntese dos relatos abertos</span></div>
+ <p class="cap" style="margin:-4px 0 16px">Síntese qualitativa das respostas à pergunta "Descreva uma situação concreta em que você precisou decidir como avaliar um trabalho com suspeita (confirmada ou não) de uso de IA. O que você fez e qual foi o resultado?". Boa parte respondeu nunca ter enfrentado essa decisão ("não aconteceu", "nunca passei por isso"). Entre quem enfrentou, as saídas se agrupam em seis caminhos — da arguição oral ao confronto direto, passando pela inação por falta de respaldo.</p>
+ <div class="grid g2">
+  <div class="card"><h3>Arguição oral como prova real</h3><p class="cap">A saída mais citada: pedir que o aluno explique e defenda oralmente o que entregou.</p>
+   <blockquote class="qz">Pedi que o discente argumentasse oralmente sobre o trabalho apresentado.<span>Ciências Humanas</span></blockquote>
+   <blockquote class="qz">Realizo seminários onde questiono o processo de raciocínio e peço que expliquem como usaram a IA — não adoto práticas punitivas.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">Em bancas de TCC e de mestrado, apresentei trechos que, embora bem escritos, não demonstravam coerência nem consistência científica.<span>Ciências Exatas e da Terra</span></blockquote></div>
+  <div class="card"><h3>Reformular a tarefa e pedir refação</h3><p class="cap">Mudar o tema, corrigir por etapas ou aplicar uma nova avaliação diferente.</p>
+   <blockquote class="qz">Pedi novamente o trabalho e alterei o assunto, corrigindo por partes, obrigando o aluno a pensar no que estava escrito.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Conversei com as pessoas envolvidas e enviei nova avaliação, completamente diferente; a nota verificada foi bem inferior.<span>Ciências Agrárias</span></blockquote>
+   <blockquote class="qz">Fiz uma nova atividade em sala sobre o mesmo tópico e comparei com o trabalho suspeito.<span>Engenharias</span></blockquote></div>
+  <div class="card"><h3>Confronto direto e penalização</h3><p class="cap">Chamar o aluno, confrontar com o trabalho e aplicar nota baixa, zero ou desconto.</p>
+   <blockquote class="qz">Numa situação clara, o aluno foi chamado e confrontado com o próprio trabalho, recebendo nota 1/10.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Após a detecção, falei individualmente com cada aluno; quem confirmou uso total sem autoria própria recebeu nota zero.<span>Ciências Biológicas</span></blockquote>
+   <blockquote class="qz">Confirmado o uso da IA no relatório, em comum acordo descontei a nota equivalente, mantendo a da parte prática.<span>Engenharias</span></blockquote></div>
+  <div class="card"><h3>Detecção por indícios e ferramentas</h3><p class="cap">Padrões "impossíveis", artefatos de formatação e ferramentas de detecção.</p>
+   <blockquote class="qz">Relatórios que deviam ser manuscritos eram nitidamente gerados por IA — padrões impossíveis para a escrita humana e inconsistências.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Identifiquei que era IA porque escreveram "[4pt]", comando de espaçamento típico do uso no celular.<span>Engenharias</span></blockquote></div>
+  <div class="card"><h3>Avaliar o processo, não só o produto</h3><p class="cap">Pedir o histórico do diálogo com a IA e acoplar a entrega a um debate.</p>
+   <blockquote class="qz">Peço para me apresentar o diálogo que fez com a IA; o resultado foi que o estudante teve que estudar de verdade, mas com o apoio dela.<span>Ciências Sociais Aplicadas</span></blockquote>
+   <blockquote class="qz">Mantenho junto à entrega escrita a apresentação, como oportunidade de debate e questionamento — mesmo se feito por IA, dá para avaliar melhor o conhecimento.<span>Multidisciplinar</span></blockquote></div>
+  <div class="card"><h3>Inação por falta de prova ou respaldo</h3><p class="cap">Sem regras claras nem certeza, muitos preferiram não penalizar.</p>
+   <blockquote class="qz">Como não havia regras claras, não penalizei ninguém; fiz uma chamada geral à turma, alertando.<span>Ciências Biológicas</span></blockquote>
+   <blockquote class="qz">Fingi não saber que foi IA para não ter problemas com o aluno, já que não temos regras claras institucionais para amparar o docente.<span>Ciências da Saúde</span></blockquote>
+   <blockquote class="qz">Não me senti segura para decidir se o aluno havia usado.<span>Ciências Exatas e da Terra</span></blockquote></div>
+ </div></section>
+
+<section class="block"><div class="blockhead"><span class="num">11</span><h2>Como avaliar melhor — a forma ideal</h2><span class="note">síntese dos relatos abertos</span></div>
+ <p class="cap" style="margin:-4px 0 16px">Síntese qualitativa das respostas à pergunta "Qual seria uma forma ideal (ainda que hipotética) de avaliar trabalhos teóricos num contexto em que os estudantes têm acesso livre à IA?". A resposta dominante é clara: deslocar o peso da avaliação para o oral e o presencial, e avaliar o processo, não só o produto. Uma parcela reconhece não ter uma resposta pronta.</p>
+ <div class="grid g2">
+  <div class="card"><h3>Avaliação oral e presencial</h3><p class="cap">De longe a mais citada — a defesa oral como o que a IA não faz pelo aluno.</p>
+   <blockquote class="qz">A única forma seria pela avaliação oral, com perguntas relacionadas ao trabalho que gerem um debate.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">É fundamental que os alunos façam provas dissertativas presenciais.<span>Ciências Sociais Aplicadas</span></blockquote>
+   <blockquote class="qz">Sempre a defesa presencial, com perguntas orais.<span>Ciências Exatas e da Terra</span></blockquote></div>
+  <div class="card"><h3>Avaliar o processo, não só o produto</h3><p class="cap">Declarar o uso, apresentar os prompts e acompanhar as etapas de construção.</p>
+   <blockquote class="qz">Avaliar não apenas o texto final, mas todo o processo: usar livremente a IA desde que declarem como e com quais objetivos, com os comandos e as alterações feitas após revisão crítica.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">Admitir o uso da IA, regrar seu uso e pedir cópias do processo — relatório de atividades, artigos consultados, discrepâncias.<span>Ciências da Saúde</span></blockquote>
+   <blockquote class="qz">Acompanhar o processo de pesquisa: a formulação dos prompts, os desdobramentos sugeridos e a conferência dos resultados.<span>Ciências Humanas</span></blockquote></div>
+  <div class="card"><h3>Redesenhar a tarefa</h3><p class="cap">Problemas concretos e personalizados que a IA não resolve sozinha.</p>
+   <blockquote class="qz">Tornar o trabalho o mais personalizado possível, com problemas concretos e questões práticas em que o aluno não consiga resolver apenas usando IA.<span>Ciências da Saúde</span></blockquote>
+   <blockquote class="qz">Usar a IA para criar situações-problema em que os alunos mobilizem as teorias para resolvê-las.<span>Ciências Sociais Aplicadas</span></blockquote>
+   <blockquote class="qz">Parar de pedir trabalhos teóricos como até agora e inventar uma forma alternativa, incluindo treinar os estudantes sobre o bom uso da IA.<span>Ciências Biológicas</span></blockquote></div>
+  <div class="card"><h3>Integrar a IA à avaliação</h3><p class="cap">Uso declarado e crítico, combinando o trabalho humano e o da ferramenta.</p>
+   <blockquote class="qz">Avaliações que combinem produção escrita, resolução de problemas e discussão oral; o uso de IA pode ser permitido, desde que o estudante demonstre capacidade crítica.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Se bem utilizada e com conceitos bem fundamentados, a IA pode funcionar como um colega com quem se trocam ideias sobre o tema.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Fazer a avaliação tradicional, pedir a avaliação da IA e compor um combinado de sugestões — mais trabalho, mas o resultado fica mais robusto.<span>Ciências Sociais Aplicadas</span></blockquote></div>
+  <div class="card"><h3>Não há forma ideal</h3><p class="cap">Parte reconhece incerteza — ou aposta no olhar individual sobre o estudante.</p>
+   <blockquote class="qz">Não há forma ideal! Formamos seres críticos; olhe para o estudante individualmente e avalie-o no dia a dia.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Não há bala de prata; cada componente curricular tem suas especificidades. Sugiro o método socrático.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">Ter normas claras — embora exigir a revisão crítica do aluno seja contraditório, pois ele ainda não tem essa capacidade.<span>Ciências da Saúde</span></blockquote></div>
+ </div></section>
+
+<section class="block"><div class="blockhead"><span class="num">12</span><h2>Dúvidas e pautas para o evento</h2><span class="note">síntese dos relatos abertos</span></div>
+ <p class="cap" style="margin:-4px 0 16px">Síntese qualitativa das respostas à pergunta "Quais as suas principais dúvidas pedagógicas que gostaria de discutir no evento?". O pedido mais forte e recorrente é institucional: normas, diretrizes e capacitação. Em seguida vêm dúvidas sobre como avaliar, sobre limites éticos e sobre o próprio papel do professor.</p>
+ <div class="grid g2">
+  <div class="card"><h3>Normas e diretrizes institucionais</h3><p class="cap">O pedido nº 1 — uma política clara da UFPel, comum a toda a universidade.</p>
+   <blockquote class="qz">Um direcionamento geral institucional que funcione para qualquer instância dentro da universidade.<span>Ciências Biológicas</span></blockquote>
+   <blockquote class="qz">Um regulamento institucional, com documento orientativo, estabelecendo princípios de uso ético, crítico, responsável e transparente.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">A previsão de uma normativa institucional de uso de IA — e se será ofertada capacitação aos docentes.<span>Ciências Exatas e da Terra</span></blockquote></div>
+  <div class="card"><h3>Capacitação e formação docente</h3><p class="cap">Formação prática e continuada, do básico ao avançado.</p>
+   <blockquote class="qz">Investir em formações práticas para o uso da IA; as questões éticas seriam o principal e o mais difícil.<span>Ciências Sociais Aplicadas</span></blockquote>
+   <blockquote class="qz">Definir orientações mais claras além das da CAPES e capacitar os professores, do básico ao avançado.<span>Engenharias</span></blockquote></div>
+  <div class="card"><h3>Como avaliar na era da IA</h3><p class="cap">Distinguir uso produtivo de substituição e repensar os instrumentos.</p>
+   <blockquote class="qz">Quais estratégias de avaliação diferenciam o uso produtivo da IA da simples substituição do trabalho intelectual do estudante.<span>Engenharias</span></blockquote>
+   <blockquote class="qz">Como realizar avaliações nessa nova realidade e como diminuir a difusão de erros pela IA.<span>Ciências Exatas e da Terra</span></blockquote></div>
+  <div class="card"><h3>Limites, ética e regulação</h3><p class="cap">Do uso ético em sala à regulação das plataformas e big techs.</p>
+   <blockquote class="qz">Limites éticos nas relações sociotécnicas; defesa da soberania digital e regulação das plataformas e big techs.<span>Ciências Humanas</span></blockquote>
+   <blockquote class="qz">Como delimitar o uso de IA, assumindo que ele é praticamente garantido.<span>Ciências Sociais Aplicadas</span></blockquote></div>
+  <div class="card"><h3>O papel do professor e as competências</h3><p class="cap">De transmissor a acompanhador — e o que ensinar num mundo pós-IA.</p>
+   <blockquote class="qz">A passagem de uma posição de professor para a de acompanhador da produção; como privilegiar a aprendizagem em vez da transmissão de conteúdos.<span>Ciências Humanas</span></blockquote>
+   <blockquote class="qz">Quais serão as competências necessárias em um mundo pós-IA.<span>Ciências Sociais Aplicadas</span></blockquote></div>
+  <div class="card"><h3>Evidências e desmistificação</h3><p class="cap">Sair da "demonização" e ver o que, de fato, funciona.</p>
+   <blockquote class="qz">Que alguém mostrasse, de forma comprovada cientificamente, quais os benefícios do uso da IA no ambiente acadêmico.<span>Ciências da Saúde</span></blockquote>
+   <blockquote class="qz">Existe uma demonização da IA; é preciso discutir casos práticos.<span>Ciências Sociais Aplicadas</span></blockquote></div>
+ </div></section>`;
+/* RAMP11 e HEATRGB vêm da paleta ativa (ver setPalette) */
+function countSingle(rows,k){const m=new Map();rows.forEach(r=>{if(r[k]!=null)m.set(r[k],(m.get(r[k])||0)+1)});return[...m.entries()].map(([label,count])=>({label,count})).sort((a,b)=>b.count-a.count);}
+
+/* override vscale to allow color array */
+function vscale(id,counts,color,labels){
+ make(id,{type:'bar',data:{labels:labels||['1','2','3','4','5'],datasets:[{data:counts,backgroundColor:color,borderRadius:5,borderSkipped:false,maxBarThickness:64}]},
+ options:{scales:{x:{grid:{display:false},ticks:{font:{size:11.5}}},y:{grid:{color:COL.line,drawBorder:false},beginAtZero:true,ticks:{precision:0}}},plugins:{tooltip:{callbacks:{label:c=>`${c.raw} respostas`}}}}});
+}
+
+/* ===== KPIs & INSIGHTS ===== */
+function renderKPIs(rows){
+ const n=rows.length;
+ const freqUse=rows.filter(r=>r.fu==='semanalmente'||r.fu==='diariamente').length;
+ const falta=lkAgree(rows,7);
+ const items=[
+  {v:n,cls:'',l:'respostas neste recorte'},
+  {v:pct(freqUse,n)+'%',cls:'teal',l:'usam IA toda semana ou diariamente'},
+  {v:mean(rows,'cf').toFixed(1),cls:'gold',l:'confiança média no uso (1 a 5)'},
+  {v:mean(rows,'ad').toFixed(1),cls:'plum',l:'avaliação adaptada à IA (0 a 10)'},
+  {v:falta.pctAgree+'%',cls:'',l:'sentem falta de capacitação institucional'}
+ ];
+ $('#kpis').innerHTML=items.map(k=>`<div class="kpi"><div class="v ${k.cls}">${k.v}</div><div class="l">${k.l}</div></div>`).join('');
+ $('#nBig').textContent=n;
+}
+function renderInsights(rows){
+ const n=rows.length;
+ const freqUse=pct(rows.filter(r=>r.fu==='semanalmente'||r.fu==='diariamente').length,n);
+ const topTool=multiCount(rows,'fe').filter(t=>t.label!=='Não uso nenhuma')[0];
+ const falta=lkAgree(rows,7).pctAgree;
+ const formInst=pct(rows.filter(r=>r.fo==='Sim, pela instituição').length,n);
+ const autoria=lkAgree(rows,1).pctAgree;
+ const adapt=mean(rows,'ad').toFixed(1);
+ const semPol=pct(rows.filter(r=>['Não','Não sei','Ainda não, pretendo definir'].includes(r.po)).length,n);
+ const li=[
+  `<b>Adoção ampla, confiança mediana.</b> ${freqUse}% usam IA semanal ou diariamente${topTool?`, e ${topTool.label} é a ferramenta mais citada`:''} — mas a confiança média no uso fica em ${mean(rows,'cf').toFixed(1)} de 5.`,
+  `<b>O vão da capacitação.</b> ${falta}% sentem falta de capacitação institucional, enquanto apenas ${formInst}% receberam formação oferecida pela instituição.`,
+  `<b>Autoria em xeque.</b> ${autoria}% concordam que a IA tornou mais difícil avaliar a autoria dos trabalhos, e a avaliação se diz adaptada à IA em apenas ${adapt}/10.`,
+  `<b>Governança pendente.</b> ${semPol}% não têm política de uso de IA definida (ou não sabem) nas suas disciplinas.`
+ ];
+ $('#insightList').innerHTML=li.map(x=>`<li>${x}</li>`).join('');
+}
+
+/* ===== CHARTS ===== */
+function renderCharts(rows){
+ const n=rows.length;
+ hbar('cArea',countSingle(rows,'ar'),COL.terra,n);
+ hbar('cTempo',ORD.tempo.map(t=>({label:t,count:rows.filter(r=>r.tp===t).length})).filter(i=>i.count),COL.slate,n);
+ const atu=countSingle(rows,'at');donut('cAtua',atu.map(a=>a.label),atu.map(a=>a.count),[COL.teal,COL.terra,COL.gold]);
+ const fo=ORD.form.map(f=>({label:f,count:rows.filter(r=>r.fo===f).length})).filter(i=>i.count);donut('cForm',fo.map(f=>f.label),fo.map(f=>f.count),[COL.teal,COL.gold,COL.muted]);
+ hbar('cTools',multiCount(rows,'fe'),COL.teal,n);
+ vscale('cFreq',countOrder(rows,'fu',ORD.freq),COL.terra,ORD.freq);
+ hbar('cFins',multiCount(rows,'fi'),COL.gold,n);
+ vscale('cConf',distScale(rows,'cf'),COL.plum);
+ vscale('cFreqAl',distScale(rows,'fa'),COL.terra);
+ hbar('cAtiv',multiCount(rows,'av'),COL.teal,n);
+ hbar('cPol',ORD.pol.map(p=>({label:p,count:rows.filter(r=>r.po===p).length})).filter(i=>i.count),COL.slate,n);
+ vscale('cAprend',distScale(rows,'ap'),DIV);
+ vscale('cProd',distScale(rows,'pr'),DIV);
+ const fp=ORD.fp.map(f=>({label:f,count:rows.filter(r=>r.fp===f).length})).filter(i=>i.count);donut('cFalso',fp.map(f=>f.label),fp.map(f=>f.count),[COL.terra,COL.gold,COL.teal]);
+ const adaptCounts=Array.from({length:11},(_,i)=>rows.filter(r=>r.ad===i).length);
+ make('cAdapt',{type:'bar',data:{labels:[...Array(11).keys()],datasets:[{data:adaptCounts,backgroundColor:RAMP11,borderRadius:4,borderSkipped:false,maxBarThickness:40}]},
+  options:{scales:{x:{grid:{display:false},title:{display:true,text:'nota de adaptação (0–10)',font:{size:11},color:COL.muted}},y:{grid:{color:COL.line,drawBorder:false},beginAtZero:true,ticks:{precision:0}}},plugins:{tooltip:{callbacks:{title:c=>'Nota '+c[0].label,label:c=>`${c.raw} docentes`}}}}});
+ hbar('cEstr',multiCount(rows,'es'),COL.olive,n);
+ hbar('cOport',multiCount(rows,'op'),COL.teal,n);
+ renderLikert(rows);
+}
+function renderLikert(rows){
+ const per=LK.map((l,idx)=>{
+  const v=rows.map(r=>r.lk[idx]).filter(x=>x!=null);
+  const c=[0,0,0,0,0];v.forEach(x=>c[x-1]++);
+  const dis=v.length?(c[0]+c[1])/v.length*100:0;
+  let pc=[0,0,0,0,0];
+  if(v.length){ // arredondamento por maior resto: os 5 níveis somam exatamente 100%
+   const raw=c.map(x=>x/v.length*100),fl=raw.map(Math.floor);
+   const rem=100-fl.reduce((a,b)=>a+b,0);
+   pc=fl.slice();
+   raw.map((r,i)=>({i,f:r-fl[i]})).sort((a,b)=>b.f-a.f).forEach((o,k)=>{if(k<rem)pc[o.i]++;});
+  }
+  return{idx,n:v.length,c,dis,pc};
+ });
+ per.sort((a,b)=>b.dis-a.dis||a.idx-b.idx);
+ const ds=[0,1,2,3,4].map(level=>({label:['1','2','3','4','5'][level],data:per.map(p=>p.pc[level]),rawc:per.map(p=>p.c[level]),backgroundColor:DIV[level],borderColor:'#fffdf9',borderWidth:1,barThickness:'flex',maxBarThickness:26}));
+ make('cLikert',{type:'bar',data:{labels:per.map(p=>wrap(LK[p.idx].s,42)),datasets:ds},
+  options:{indexAxis:'y',layout:{padding:{right:6}},
+   scales:{x:{stacked:true,max:100,grid:{color:COL.line,drawBorder:false},ticks:{callback:v=>v+'%'}},y:{stacked:true,grid:{display:false},ticks:{font:{size:10},autoSkip:false}}},
+   plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>LK[per[i[0].dataIndex].idx].s,label:c=>`Nível ${c.dataset.label}: ${c.dataset.rawc[c.dataIndex]} resp. (${c.raw}%)`,afterBody:i=>{const p=per[i[0].dataIndex];return 'Tema: '+LK[p.idx].g+' · discordam (1–2): '+Math.round(p.dis)+'%';}}}}}});
+}
+
+/* ===== DEPOIMENTOS (verbatim) ===== */
+const QUOTES=[
+ {t:'pos',area:'Engenharias',text:'Os fluxogramas, quadros comparativos e sequência metodológica com o uso de IA fica muito bom.'},
+ {t:'pos',area:'Ciências Sociais Aplicadas',text:'Gosto de debater com a IA sobre propostas de atividades em aula. Ela me auxilia a preparar material para dinâmicas mais interativas, como debates a partir de cenários (role playing).'},
+ {t:'pos',area:'Engenharias',text:'Possuo um aluno com autismo; ele utilizou as ferramentas para adaptar os conteúdos, criei prompts específicos para ele e revisei os documentos gerados. Isso facilitou a adaptação e o aluno se sentiu mais integrado.'},
+ {t:'pos',area:'Ciências Agrárias',text:'Nesta SIIEPE, 3 orientados apresentarão resumos de trabalhos em que foi utilizada IA para criar aplicações web para tratamento de dados climatológicos. A experiência foi muito positiva e instigou os estudantes a seguirem buscando outras aplicações.'},
+ {t:'pos',area:'Ciências Humanas',text:'Desenvolvimento de recursos de acessibilidade mediados por IA (Projeto PAPin).'},
+ {t:'pos',area:'Ciências Biológicas',text:'Geralmente vejo como positivo quando a IA faz ajustes na coesão e coerência do texto.'},
+ {t:'neg',area:'Engenharias',text:'Um trabalho final de curso entregue em poucas horas, muito bem escrito. Realmente desconfiei se o aluno fez: ele não me procurou o semestre inteiro e no final tinha o trabalho pronto.'},
+ {t:'neg',area:'Ciências Sociais Aplicadas',text:'Recebi um TCC repleto de citações bibliográficas falsas, alucinações da IA. O referencial teórico completamente feito por IA levou o aluno a ser reprovado e orientado a refazer o trabalho.'},
+ {t:'neg',area:'Engenharias',text:'A IA deu uma resposta impossível e o aluno nem leu. A IA afirmou que 7 não é maior do que 4 e o discente aceitou.'},
+ {t:'neg',area:'Ciências Agrárias',text:'Duas alunas reenviaram uma avaliação pouco tempo após ser disponibilizada. No texto, em formato digital, havia palavras "escondidas" na cor branca. A pessoa não lê, mas a IA sim e responde sobre tudo que estava escrito.'},
+ {t:'neg',area:'Ciências Exatas e da Terra',text:'Fui banca em uma defesa de dissertação cujo texto estava muito bem escrito, também tecnicamente, e na consulta oral o estudante não entendia do assunto.'},
+ {t:'neg',area:'Ciências da Saúde',text:'Alunos deixam de pesquisar, de ler, de raciocinar. Pegam resumos equivocados e errados do ChatGPT e não apreendem o conteúdo.'},
+ {t:'ideal',area:'Ciências da Saúde',text:'Admitir o uso da IA, regrar seu uso e pedir cópias desse uso e do processo de formação do conhecimento do estudante, com relatório de atividades, artigos consultados e discrepâncias.'},
+ {t:'ideal',area:'Ciências da Saúde',text:'Tornar o trabalho o mais personalizado possível, criando problemas concretos, roteiros e questões práticas em que o aluno não consiga resolver apenas usando IA.'},
+ {t:'ideal',area:'Ciências Humanas',text:'Acompanhar o processo de pesquisa, a formulação dos prompts, os desdobramentos sugeridos e a conferência dos resultados.'},
+ {t:'ideal',area:'Ciências Biológicas',text:'Parar de pedir trabalhos teóricos como foi feito até agora e inventar uma forma alternativa, incluindo treinar os estudantes sobre o bom uso da IA.'},
+ {t:'duvida',area:'Ciências Exatas e da Terra',text:'Como diminuir a influência da difusão de erros pela IA e das falsas crenças a eles associadas; e como realizar avaliações nessa nova realidade.'},
+ {t:'duvida',area:'Ciências da Saúde',text:'Quais as normas e orientações da UFPel; quais as IAs mais recomendadas para o nosso trabalho e como capacitar-se nelas.'},
+ {t:'duvida',area:'Ciências Sociais Aplicadas',text:'A IA questiona as competências consagradas ao ensino superior; seria interessante discutir quais serão as competências necessárias em um mundo pós-IA.'},
+ {t:'duvida',area:'Ciências Agrárias',text:'Muitas ferramentas na versão gratuita têm limitações. Seria muito bom se fosse possível dispor de uma chave institucional para acesso. A gestão pensa em buscar esse tipo de apoio?'},
+ {t:'neg',area:'Ciências da Saúde',text:'Fornece respostas rápidas sem embasamento sólido, guiadas pela popularidade de um site e não pela correção. Cria uma sensação de preguiça coletiva e faz parecer que armazenar conhecimento seria inútil, já que ele estaria disponível a todos instantaneamente.'},
+ {t:'duvida',area:'Ciências da Saúde',text:'Gostaria que alguém da área mostrasse, de forma comprovada cientificamente, quais os benefícios do uso da IA no ambiente acadêmico — indo além do corretor de texto, das imagens bonitas e de uma busca similar ao Google.'},
+ {t:'pos',area:'Ciências Exatas e da Terra',text:'Uma aluna gerou, rápida e automaticamente, um estudo de insolação na volumetria de um prédio com ajuda do Claude. A partir daí, pudemos comprovar a adequação de um recuo lateral maior.'},
+ {t:'pos',area:'Ciências Exatas e da Terra',text:'Um aluno elaborou, na disciplina de banco de dados, um trabalho com dados da própria empresa; apresentou os resultados aos gestores, foi bem visto e está propondo um artigo explicando o processo para o SIIEPE.'},
+ {t:'pos',area:'Ciências Biológicas',text:'Coordeno um projeto de ensino com encontros em que estudamos com os alunos a forma mais adequada de usar a IA: identificar respostas inadequadas, formular prompts e conferir resultados.'},
+ {t:'neg',area:'Engenharias',text:'Vários alunos resolveram exercícios de números sorteados em poucos minutos e tiraram nota máxima. Ao colar as questões no ChatGPT, ele deu exatamente os mesmos valores, inclusive os algarismos significativos — mas na prova não souberam resolver problemas semelhantes.'},
+ {t:'neg',area:'Engenharias',text:'Uns alunos colaram numa prova usando IA e copiaram tudo, mesmo o que não tinha relação com a matéria. Identifiquei porque escreveram "[4pt]", comando de espaçamento típico do uso de IA pelo celular.'},
+ {t:'neg',area:'Engenharias',text:'Numa lista de exercícios com gabarito liberado após o envio, vários alunos colavam respostas de IA em toda a lista, desvirtuando o sentido do exercício, que era justamente fazê-los pensar e estudar.'},
+ {t:'neg',area:'Ciências da Saúde',text:'Fingi não saber que foi IA para não ter problemas com o aluno, já que não temos regras claras institucionais para amparar o docente.'},
+ {t:'neg',area:'Ciências Exatas e da Terra',text:'Em bancas de TCC e de mestrado, identifiquei uso inadequado de IA: textos aparentemente bem escritos, mas sem coerência, encadeamento lógico ou consistência científica na fundamentação.'},
+ {t:'ideal',area:'Ciências Exatas e da Terra',text:'Não há bala de prata; cada componente curricular tem suas especificidades. Sugiro adotar o método socrático — questionar o processo de raciocínio, sem práticas punitivas.'},
+ {t:'ideal',area:'Engenharias',text:'Avaliações que combinem produção escrita, resolução de problemas e discussão oral. O uso de IA pode ser permitido, desde que o estudante demonstre capacidade crítica, domínio conceitual e responsabilidade sobre o que entrega.'},
+ {t:'ideal',area:'Ciências Exatas e da Terra',text:'Avaliar não apenas o texto final, mas todo o processo: os estudantes poderiam usar livremente a IA, desde que declarassem como e com quais objetivos, apresentando os comandos usados e as alterações feitas após revisão crítica.'},
+ {t:'ideal',area:'Ciências Exatas e da Terra',text:'Sempre a defesa presencial, com perguntas orais — levar o aluno a defender oralmente um trabalho em que a IA possa ter sido utilizada.'},
+ {t:'duvida',area:'Engenharias',text:'Por que alunos expostos à mesma aula, ao mesmo conteúdo e ao mesmo professor: uns fazem uso de IA e outros praticamente não? Vale discutir os mecanismos e as razões que levam ao uso.'},
+ {t:'duvida',area:'Engenharias',text:'Como incorporar a IA às atividades sem comprometer a aprendizagem, e quais estratégias de avaliação diferenciam o uso produtivo da simples substituição do trabalho intelectual do estudante.'},
+ {t:'duvida',area:'Ciências Exatas e da Terra',text:'Gostaria de saber a previsão de uma normativa institucional de uso de IA na UFPel e se será ofertada capacitação aos docentes.'}
+];
+function renderVoices(t){
+ const list=t==='all'?QUOTES:QUOTES.filter(q=>q.t===t);
+ const tag={pos:['pos','Positiva'],neg:['neg','Desafio'],ideal:['ideal','Forma ideal'],duvida:['duvida','Dúvida']};
+ $('#voices').innerHTML=list.map(q=>`<div class="quote"><p>${q.text}</p><div class="meta"><span class="qtag ${tag[q.t][0]}">${tag[q.t][1]}</span><span>${q.area}</span></div></div>`).join('');
+}
+
+/* ===== CRUZAMENTOS COM A FREQUÊNCIA (sobre todas as respostas) ===== */
+function heatMatrix(mountId,noteId,key,headLabel,rowOrder,totLabel){
+ const labels=rowOrder?rowOrder.filter(o=>R.some(r=>r[key]===o)):countSingle(R,key).map(a=>a.label);
+ const head=`<div class="hrow"><div class="hh l">${headLabel}</div>`+ORD.freq.map(f=>`<div class="hh">${f}</div>`).join('')+`<div class="hh">n</div><div class="hh">uso freq.</div></div>`;
+ const body=labels.map(a=>{
+  const ar=R.filter(r=>r[key]===a);const n=ar.length;
+  const cells=ORD.freq.map(f=>{const c=ar.filter(r=>r.fu===f).length;const p=pct(c,n);const al=(p/100)*0.9;const dark=al>0.5;
+   return `<div class="cell" style="background:rgba(${HEATRGB},${al.toFixed(2)});color:${dark?'#fff':'var(--ink)'}">${c?`<span class="c">${c}</span><span class="p">${p}%</span>`:'<span class="p" style="opacity:.35">—</span>'}</div>`;}).join('');
+  const uf=pct(ar.filter(r=>r.fu==='semanalmente'||r.fu==='diariamente').length,n);
+  return `<div class="hrow"><div class="rk">${a}</div>${cells}<div class="tot">${n}</div><div class="uf">${uf}%</div></div>`;
+ }).join('');
+ const tn=R.length;
+ const totcells=ORD.freq.map(f=>{const c=R.filter(r=>r.fu===f).length;return `<div class="cell" style="background:#ece3d5;color:var(--ink)"><span class="c">${c}</span><span class="p">${pct(c,tn)}%</span></div>`;}).join('');
+ const tuf=pct(R.filter(r=>r.fu==='semanalmente'||r.fu==='diariamente').length,tn);
+ const totrow=`<div class="hrow totrow"><div class="rk">${totLabel||'Todas'}</div>${totcells}<div class="tot">${tn}</div><div class="uf">${tuf}%</div></div>`;
+ document.getElementById(mountId).innerHTML=head+body+totrow;
+ const stats=labels.map(a=>{const ar=R.filter(r=>r[key]===a);return{a,n:ar.length,uf:pct(ar.filter(r=>r.fu==='semanalmente'||r.fu==='diariamente').length,ar.length)};}).filter(s=>s.n>=3).sort((x,y)=>y.uf-x.uf);
+ const hi=stats[0],lo=stats[stats.length-1];
+ document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`Maior taxa de uso semanal ou diário: <b>${hi.a}</b> (${hi.uf}%). Menor: <b>${lo.a}</b> (${lo.uf}%). Grupos com menos de 3 respostas ficam de fora dessa leitura.`:'';
+}
+function renderCross(){
+ heatMatrix('heat','heatNote','ar','Área',null,'Todas as áreas');
+ heatMatrix('heatT','heatNoteT','tp','Tempo de docência',ORD.tempo,'Todos os grupos');
+ heatScale('heatP','heatNoteP','po',ORD.pol,'fa','Política de uso','Todas','alto (4–5)','A percepção de uso alto (4–5) pelos alunos');
+ heatScale('heatFP','heatNoteFP','fu',ORD.freq,'pr','Frequência de uso','Todas','positivo (4–5)','O efeito positivo na produtividade (4–5)');
+ heatMulti('heatEA','heatNoteEA','es','ad','Estratégia de avaliação','média (0–10)','Adaptação da avaliação (0–10)');
+}
+/* linhas em múltipla escolha × faixa de uma escala numérica (ex.: estratégias × adaptação 0–10) */
+function heatMulti(mountId,noteId,multiKey,scaleKey,headLabel,metricLabel,hiDesc){
+ const bands=[{lab:'Baixa (0–3)',t:v=>v<=3},{lab:'Média (4–6)',t:v=>v>=4&&v<=6},{lab:'Alta (7–10)',t:v=>v>=7}];
+ const labels=multiCount(R,multiKey).map(x=>x.label);
+ const head=`<div class="hrow"><div class="hh l">${headLabel}</div>`+bands.map(b=>`<div class="hh">${b.lab}</div>`).join('')+`<div class="hh">n</div><div class="hh">${metricLabel}</div></div>`;
+ const mk=(lab,rows,cls)=>{
+  const valid=rows.filter(r=>r[scaleKey]!=null),n=valid.length;
+  const cells=bands.map(b=>{const cnt=valid.filter(r=>b.t(r[scaleKey])).length;const p=pct(cnt,n);const al=cls?0:(p/100)*0.9;const bg=cls?'#ece3d5':`rgba(${HEATRGB},${al.toFixed(2)})`;const dark=al>0.5;
+   return `<div class="cell" style="background:${bg};color:${dark?'#fff':'var(--ink)'}">${cnt?`<span class="c">${cnt}</span><span class="p">${p}%</span>`:'<span class="p" style="opacity:.35">—</span>'}</div>`;}).join('');
+  const m=n?valid.reduce((a,r)=>a+r[scaleKey],0)/n:0;
+  return `<div class="hrow${cls?' totrow':''}"><div class="rk">${lab}</div>${cells}<div class="tot">${n}</div><div class="uf">${n?m.toFixed(1):'—'}</div></div>`;
+ };
+ const body=labels.map(l=>mk(l,R.filter(r=>(r[multiKey]||[]).includes(l)),false)).join('');
+ const totrow=mk('Todas as respostas',R,true);
+ document.getElementById(mountId).innerHTML=head+body+totrow;
+ const stats=labels.map(l=>{const vv=R.filter(r=>(r[multiKey]||[]).includes(l)&&r[scaleKey]!=null);return{l,n:vv.length,m:vv.length?vv.reduce((a,r)=>a+r[scaleKey],0)/vv.length:0};}).filter(s=>s.n>=3).sort((a,b)=>b.m-a.m);
+ const hi=stats[0],lo=stats[stats.length-1];
+ document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`${hiDesc}: maior média entre quem usa "<b>${hi.l}</b>" (${hi.m.toFixed(1)}/10) e menor entre "<b>${lo.l}</b>" (${lo.m.toFixed(1)}/10). Como é múltipla escolha, um docente entra em várias linhas; estratégias com menos de 3 respostas ficam de fora.`:'';
+}
+/* linhas categóricas × coluna em escala 1–5 (ex.: política × frequência percebida) */
+function heatScale(mountId,noteId,rowKey,rowOrder,scaleKey,headLabel,totLabel,metricLabel,hiDesc){
+ const labels=rowOrder?rowOrder.filter(o=>R.some(r=>r[rowKey]===o)):countSingle(R,rowKey).map(a=>a.label);
+ const cols=[1,2,3,4,5];
+ const head=`<div class="hrow"><div class="hh l">${headLabel}</div>`+cols.map(c=>`<div class="hh">${c}</div>`).join('')+`<div class="hh">n</div><div class="hh">${metricLabel}</div></div>`;
+ const mkRow=(lab,rows,cls)=>{
+  const n=rows.filter(r=>r[scaleKey]!=null).length;
+  const cells=cols.map(cv=>{const cnt=rows.filter(r=>r[scaleKey]===cv).length;const p=pct(cnt,n);const al=cls?0:(p/100)*0.9;const bg=cls?'#ece3d5':`rgba(${HEATRGB},${al.toFixed(2)})`;const dark=al>0.5;
+   return `<div class="cell" style="background:${bg};color:${dark?'#fff':'var(--ink)'}">${cnt?`<span class="c">${cnt}</span><span class="p">${p}%</span>`:'<span class="p" style="opacity:.35">—</span>'}</div>`;}).join('');
+  const hi=pct(rows.filter(r=>r[scaleKey]>=4).length,n);
+  return `<div class="hrow${cls?' totrow':''}"><div class="rk">${lab}</div>${cells}<div class="tot">${n}</div><div class="uf">${hi}%</div></div>`;
+ };
+ const body=labels.map(a=>mkRow(a,R.filter(r=>r[rowKey]===a),false)).join('');
+ const totrow=mkRow(totLabel,R,true);
+ document.getElementById(mountId).innerHTML=head+body+totrow;
+ const stats=labels.map(a=>{const rr=R.filter(r=>r[rowKey]===a&&r[scaleKey]!=null);return{a,n:rr.length,hi:pct(rr.filter(r=>r[scaleKey]>=4).length,rr.length)};}).filter(s=>s.n>=3).sort((x,y)=>y.hi-x.hi);
+ const hi=stats[0],lo=stats[stats.length-1];
+ document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`${hiDesc} é maior entre "<b>${hi.a}</b>" (${hi.hi}%) e menor entre "<b>${lo.a}</b>" (${lo.hi}%). Grupos com menos de 3 respostas ficam de fora dessa leitura.`:'';
+}
+
+/* ===== WIRING ===== */
+function renderLkLegend(){const L=['1 Discordo totalmente','2','3 Neutro','4','5 Concordo totalmente'];const el=$('#lkLegend');if(el)el.innerHTML=L.map((t,i)=>`<span><i style="background:${DIV[i]}"></i>${t}</span>`).join('');}
+let OPENTEXT="";
+const STOP=new Set("de da do das dos e o a os as um uma uns umas que com sem para por no na nos nas em se ser é são foi era ao à aos às ou mais menos muito muita muitos muitas como mas já não sim isso isto este esta esse essa seu sua seus suas meu minha ele ela eles elas eu nós você vocês lhe me te dele dela quando onde qual quais porque pois então também até entre sobre após antes depois tem têm ter tinha há havia vai vão estar está estão estava fazer faz feito fez faço ainda cada todo toda todos todas algum alguma alguns algumas nenhum nenhuma nenhum outro outra outros outras mesmo mesma assim aqui ali lá só apenas bem ir vir dar seria num numa pela pelo pelas pelos dessa desse desta deste disso nessa nesse nesta neste nem sendo pode podem poder vez vezes coisa coisas foram acho acredito penso sei tenho forma tipo exemplo caso casos parte dia pra pro nao ter deve devem sido tudo aquele aquela quanto minhas meus muitas usar uso usam usando usa usei usado usados usada usava usou utilizar utiliza utilizam utilizando utilizado utilizada utilização utilizo utilizado fazendo fazemos fazer querem quer quero queremos nosso nossa nossos nossas quanta qualquer algo nada tanto tanta durante porém contudo entretanto todavia modo maneira ia alunos aluno estudante estudantes trabalho trabalhos trabalhar professor professores professora docente docentes pouco pouca sempre nunca precisa precisam precisamos deles delas nesse desse ainda cujo cuja pelo além disso seja sido está sempre etc geral gerais grande grandes pequeno pequena bom boa boas bons melhor pior maior menor novo nova algumas poderia poderiam devido através dentro fora acima abaixo cerca talvez enfim inclusive principalmente especialmente basicamente simplesmente realmente atualmente hoje agora sempre nunca alguém ninguém tais tal cujas cujos".split(/\s+/));
+function renderCloud(){
+ const el=$('#cloud');if(!el)return;
+ const freq=new Map();
+ OPENTEXT.toLowerCase().replace(/[^a-zà-ÿ\s]/g,' ').split(/\s+/).forEach(w=>{if(w.length>=3&&!STOP.has(w))freq.set(w,(freq.get(w)||0)+1);});
+ const top=[...freq.entries()].map(([w,c])=>({w,c})).sort((a,b)=>b.c-a.c).slice(0,20);
+ if(!top.length){el.innerHTML='';return;}
+ const max=top[0].c,min=top[top.length-1].c,sq=Math.sqrt,span=Math.max(.001,sq(max)-sq(min));
+ const cols=[COL.terra,COL.teal,COL.gold,COL.plum,COL.slate];
+ el.innerHTML=top.slice().sort((a,b)=>a.w.localeCompare(b.w,'pt')).map(t=>{
+  const f=(sq(t.c)-sq(min))/span;
+  const sz=(13+f*34).toFixed(1),wt=f>0.66?700:f>0.33?600:500,op=(0.5+f*0.5).toFixed(2);
+  const col=cols[(t.w.charCodeAt(0)+t.w.length)%cols.length];
+  return `<span class="cw" title="${t.c}×" style="font-size:${sz}px;font-weight:${wt};color:${col};opacity:${op}">${t.w}</span>`;
+ }).join('');
+}
+OPENTEXT+=`os fluxogramas, quadros comparativos e sequencia metodológica com o uso de IA fica muito bom. um trabalho final de curso entregue em poucas horas. O trabalho estava muito bem escrito. Realmente desconfiei se o aluno fez. Ele não me procurou o semestre inteiro e no final tinha o trabalho pronto. Corrigi pedi muitas coisas. Pedi novamente o trabalho e alterei o assunto. E fui corrigindo por partes, obrigando o aluno a pensar no que estava escrito e analisado. Acredito que os trabalhos necessitaram não serem teóricos. Ou então leitura em sala, com arquivo físico. Preciso entender como sentir segurança no uso de IA, sem limitar o raciocínio lógico. Pude encontrar respostas que julgo seguras em questões físico-matemáticas sem a consulta a uma grande quantidade de materiais, em estudos tendo em vista o preparo de aulas, apesar de erros gerados pela IA. Nota-se que a IA pode induzir a erros, mesmo em relações matemáticas. Isso inclui erros conceituais e erros em unidades de grandezas físicas em relações matemáticas. Como diminuir a influência da difusão de erros pela IA e das falsas crenças a eles associados, levando em conta o poder concentrado de informação administrada por monopólios de alcance global. Como realizar avaliações nessa nova realidade. Uso a IA para atualizações dos conteúdos que eu ministro, portanto a uso no preparo das aulas. Ela descobre vídeos didáticos e passo aos alunos um vídeo por aula para ilustrar tópicos que estamos estudando. Juntei um conjunto de projetos de TCCs e submeti uma página com os critérios para avaliação de TCCs. O resultado foi ruim, afirmando que muitos projetos de tccs não atingiam o mínimo para aceitação. Depois os submeti um a um e as respostas foram melhores, a IA encontrando pontos positivos nos mesmos tccs que quando avaliados no conjunto foram considerados abaixo da média para aprovação. Apontei os pontos negativos que percebi e pedi que se refizesse com as melhorias que eu sugeri. Fazer avaliação tradicional, pedir avaliação da IA e compor um combinado de sugestões de melhorias, mais trabalho que antes, mas fica mais robusto o resultado. Métodos de avaliação dos estudantes. durante um projeto de ensino revisávamos os textos, reescrevíamos em conjunto e pedíamos correções à IA, julgando se eram viáveis. produzir um folder para traduzir em imagens as perguntas de um questionário validado, e a IA foi razoavelmente bem, os entrevistados confundiam o significado das imagens. orientei um tcc onde, apesar de instruir repetidamente o estudante a não utilizar a IA como resumidora dos artigos, no final do processo poucos foram os artigos que ele efetivamente leu. admitir o uso da IA, regrar seu uso, e pedir cópias deste uso e do processo de formação do conhecimento do estudante, com relatório de atividades, artigos consultados, discrepâncias. estratégias de detecção, de uso responsável e de conscientização e orientação aos estudantes. Aluno justificou que sua resposta não foi produzida por IA. Suspeita não confirmada de uso de IA para trabalhos acadêmicos. Ter normas claras sobre o uso, embora a exigência de revisão crítica por parte do aluno seja contraditória, uma vez que ele ainda não possua essa capacidade. Quais as normas e orientações da UFPEL; quais as IAs mais recomendadas para o nosso trabalho e como capacitar-se nelas. Estudantes que utilizaram IA para traduzir trechos de referências importantes originalmente em russo ou mandarim e inglês, diante do pouco tempo para o cumprimento da tarefa. Eu uso bastante para melhorar a qualidade visual de algumas imagens. Recentemente fui banca em uma defesa de dissertação cujo texto estava muito bem escrito, tecnicamente, e na consulta oral não entendia do assunto. Minha vontade foi de reprovar o estudante. a arguição oral é o caminho mais óbvio. metodologias para a identificação de uso de ia. Uma aluna PCD usou IA para resolver trabalhos quando estava afastada das atividades por questões de saúde. Não me senti segura para decidir se o aluno havia usado. Avaliações orais. Como usar as ferramentas. Para a melhoria da minha pesquisa e produção bibliográfica. Alunos que fizeram um trabalho de redação de avaliação final e utilizaram o texto gerado pela IA sem tentarem escrever com autoria própria. Utilizei ferramentas de detecção de plágio e detectei uso de IA. Após a detecção entrei em contato individualmente com cada aluno para saber se houve uso e qual a extensão do uso da IA. Alunos que utilizaram apenas para ortografia e gramática foram avaliados normalmente, alunos que afirmaram não terem feito uso foram avaliados a partir da sinceridade, alunos que confirmaram o uso incluindo não haver autoria própria do texto receberam nota zero. um direcionamento geral institucional que funcione para qualquer instância dentro da universidade. `;
+/* ===== LEITURAS PRINCIPAIS (recalculadas a partir de R) ===== */
+function renderReadings(){
+ const T=R.length, P=n=>Math.round(n/T*100), b=t=>`<b>${t}</b>`;
+ const fq=v=>R.filter(r=>r.fu===v).length;
+ const weekly=fq('semanalmente')+fq('diariamente'), daily=fq('diariamente'), never=fq('nunca');
+ const cf5=R.filter(r=>r.cf===5).length, cf3=R.filter(r=>r.cf===3).length;
+ const prPos=R.filter(r=>r.pr>=4).length, prNeg=R.filter(r=>r.pr<=2).length;
+ const noPolSet=['Não','Ainda não, pretendo definir','Não sei'];
+ const noPol=R.filter(r=>noPolSet.includes(r.po)).length;
+ const dRows=R.filter(r=>r.fu==='diariamente'), dNoPol=dRows.filter(r=>noPolSet.includes(r.po)).length;
+ const noTrain=R.filter(r=>r.fo==='Não').length, inst=R.filter(r=>r.fo==='Sim, pela instituição').length;
+ const noTrainFreq=R.filter(r=>r.fo==='Não'&&(r.fu==='semanalmente'||r.fu==='diariamente')).length;
+ const faHigh=R.filter(r=>r.fa>=4).length, faMax=R.filter(r=>r.fa===5).length;
+ const dSim=R.filter(r=>r.fp==='sim').length, dTalvez=R.filter(r=>r.fp==='não tenho certeza').length, dNao=R.filter(r=>r.fp==='não').length;
+ const adapted=R.filter(r=>r.ps==='sim'||r.ps==='parcialmente').length, noAdapt=R.filter(r=>r.ps==='não').length;
+ const adVals=R.filter(r=>r.ad!=null).map(r=>r.ad), adAvg=adVals.length?adVals.reduce((a,c)=>a+c,0)/adVals.length:0;
+ const fins=multiCount(R,'fi'), ops=multiCount(R,'op'), estr=multiCount(R,'es');
+ const cnt=(arr,l)=>(arr.find(x=>x.label===l)||{count:0}).count;
+ const corr=cnt(fins,'Correção'), detector=cnt(estr,'Detector de IA'), noneStrat=cnt(estr,'Nenhuma estratégia específica');
+ const topStrat=estr.filter(x=>x.label!=='Nenhuma estratégia específica'&&x.label!=='Outro')[0]||{label:'—',count:0};
+ const topFins=fins.filter(x=>x.label!=='Outro').slice(0,4).map(x=>`${x.label} (${x.count})`).join(', ');
+ const topOps=ops.filter(x=>x.label!=='Outro').slice(0,3).map(x=>`${x.label} (${x.count})`).join(', ');
+ const lowOps=ops.filter(x=>x.label!=='Outro').slice(-3).reverse().map(x=>`${x.label} (${x.count})`).join(', ');
+ const cards=[
+  ['Adoção quase universal, confiança morna',
+   `${b(P(weekly)+'%')} usam IA ao menos semanalmente (${weekly} de ${T}; ${daily} diariamente)${never?`, e só ${never} nunca usam`:''}. Ainda assim, a confiança nas respostas da IA fica no meio-termo: ${b(cf3)} docentes marcam 3 numa escala de 5 e apenas ${b(cf5)} dão nota máxima — usam muito, mas com pé atrás.`],
+  ['A IA entrou como ferramenta do professor, não do aluno',
+   `As finalidades mais citadas são ${b(topFins)} — todas centradas na produção do docente; correção aparece em apenas ${b(corr)}. Entre as oportunidades, lideram ${b(topOps)}, enquanto as voltadas ao aluno ficam no fim (${lowOps}).`],
+  ['O ganho de produtividade é o maior consenso',
+   `${b(P(prPos)+'%')} (${prPos} de ${T}) avaliam o efeito na própria produtividade como positivo (níveis 4–5) e apenas ${b(prNeg)} como negativo (1–2). É o ponto de maior concordância de toda a base.`],
+  ['Vácuos institucionais: política e formação',
+   `${b(P(noPol)+'%')} não têm política de uso definida na disciplina (${noPol} de ${T}); entre quem usa IA diariamente, são ${b(dNoPol+' de '+dRows.length)}. E ${b(P(noTrain)+'%')} nunca tiveram formação em IA — só ${b(inst)} foram capacitados pela instituição, embora ${b(noTrainFreq)} sem formação já usem IA com frequência.`],
+  ['Ponto cego: muito uso percebido, pouca verificação',
+   `${b(P(faHigh)+'%')} percebem uso alto de IA pelos alunos (níveis 4–5; ${faMax} no máximo), mas só ${b(dSim)} identificaram uso indevido com certeza — ${dNao} dizem que não e ${b(dTalvez)} não têm certeza. A suspeita é generalizada, mas a avaliação atual não consegue confirmar.`],
+  ['A avaliação já muda — mas de forma rasa e artesanal',
+   `${b(P(adapted)+'%')} adaptaram a avaliação ao menos em parte (só ${noAdapt} não mudaram nada), porém a intensidade média é de apenas ${b(adAvg.toFixed(1)+'/10')}. A resposta é humana, não tecnológica: a estratégia mais usada é ${b(topStrat.label+' ('+topStrat.count+')')}, detectores de IA aparecem em só ${b(detector)}, e ${b(noneStrat)} docentes não adotam nenhuma estratégia.`]
+ ];
+ const rn=document.getElementById('readN'); if(rn)rn.textContent=T;
+ document.getElementById('readings').innerHTML=cards.map((c,i)=>`<div class="card" style="margin-bottom:14px;border-left:3px solid var(--terra)"><h3 style="display:flex;gap:10px;align-items:baseline"><span style="color:var(--terra);font-variant-numeric:tabular-nums;font-weight:800">${String(i+1).padStart(2,'0')}</span><span>${c[0]}</span></h3><p class="cap" style="font-size:14px;line-height:1.6;margin-top:6px;color:var(--ink2)">${c[1]}</p></div>`).join('');
+}
+function renderAll(){renderLkLegend();apply();renderCross();renderReadings();}
+OPENTEXT+=`Uso para organização da produção científica de meu projeto com base em banco de dados fornecido à IA. Análise de conteúdo e consistência teórica. o produto gerado pela IA deve ser revisado com cautela e senso crítico. Ética no uso e universalização do acesso. Uso diariamente para escrever e-mails, limpar códigos, revisar textos, planejar atividades, incluindo aulas. O maior desafio é revisar adequadamente o que a IA produz. Parar de pedir trabalhos teóricos como foi feito até agora e inventar uma forma alternativa, incluindo treinar os estudantes sobre o bom uso da IA. Abraçar a existência de IA e usar isso a favor da pedagogia, didática e do aprendizado. Ajuste frequente de quais conteúdos abordar em sala de aula baseado na sequência lógica. Falta de confiança no professor quando a IA diz outra coisa, ou uma interpretação errônea. Como fornecer material de estudo sem o uso de IA. Ótimo recurso para criação de atividades para os alunos adequadas às necessidades da disciplina. Situações de plágio e falta de criação por parte do aluno. Trabalho com partes copiadas que receberam desconto na nota. Incluir a pesquisa em IA como parte da confecção do trabalho, sem excluir a parte criativa necessária para o desenvolvimento do aluno. Qual o limite de uso? tenho presenciado casos de estudos de revisão teórica e ampliação de repertório de soluções, ideias e visualidades que potencializam a formação no campo do ensino, pesquisa, extensão e inovação. apoio na revisão de artigos que ampliam o repertório do tema que estou estudando. Na revisão da linguagem que estou escrevendo, tudo fica mais claro e organizado, com ajustes muito finos que eu levaria muito tempo para conseguir. já treinei o ambiente para manter o meu estilo de escrita. casos de total falta de critério, reproduzindo referências que não existem, ideias desconectadas. detectando referências inventadas, com DOI acessível mas indicando outros artigos, algo assustador. o autor pediu para incrementar o artigo com referências atuais sem verificar a veracidade. eu peço para me apresentar o diálogo que fez com a IA, o resultado foi que o estudante teve que estudar de verdade mas seguindo com o apoio da IA. no caso da graduação a IA possa desenvolver muito a postura crítica, estressando a produção em suas fragilidades e potências. investir em formações práticas para o uso da IA, investir em questões éticas seria o principal e o mais difícil. Avaliei um resumo expandido de um estudante com TEA que tem desafios para uma escrita organizada, solicitei correções e rapidamente recebi outra versão praticamente sem necessidade de correções, fiquei desconfiada do uso de IA. Realizando uma arguição oral e prática ao estudante. É possível termos uma ferramenta institucional e justa para avaliação de uso de IA pelos estudantes. Análise de material produzido discutindo o prompt utilizado e os viés dos resultados. avaliar produtos finalizados sem acompanhamento do processo criador dos discentes. Verificação em diversas plataformas e pedido de sustentação oral do conteúdo apresentado. Acompanhar o processo produtivo em cada uma de suas etapas. A passagem de uma posição de professor para uma de acompanhador da produção. Como privilegiar a aprendizagem ao invés do ensino como transmissão de conteúdos. orientados apresentarão resumos de trabalhos em que foi utilizada IA para criar aplicações web para tratamento de dados climatológicos, para detectar a cor de méis para classificação e análise sensorial. instigou os estudantes a seguirem buscando outras aplicações para a IA. o Gemini Notebook tem mostrado-se um aliado na conferência da formatação e normas, não dispensa a verificação do orientador. Duas alunas reenviaram uma avaliação pouco tempo após a atividade, no texto havia palavras escondidas na cor branco, a pessoa não lê mas a IA responde sobre tudo que estava escrito. As regras precisam ser bem definidas e deve-se avaliar o processo criativo quanto à lógica e metodologia. os prompts e script de programação precisam ser checados pelo docente. Muitas ferramentas na versão gratuita têm limitações, seria bom dispor de uma chave institucional para acesso. Desenvolvimento de recursos de acessibilidade mediados por IA. Entrega de trabalhos muito qualificados por discente de desempenho mediano que não conhecia o conteúdo do texto que entregou. Pedi que o discente argumentasse oralmente sobre o trabalho apresentado. Acompanhar o processo de pesquisa, a formulação dos prompts, os desdobramentos sugeridos, a conferência dos resultados. Apropriação prática das ferramentas para uso no ensino-aprendizagem e na pesquisa, discussão sobre os limites éticos, defesa da soberania digital e regulação das plataformas digitais e big techs. Ajudou a interpretar gráficos relacionados a pesquisa com explicação coerente. Correções gramaticais e ortográficas. A IA deu uma resposta impossível e o aluno nem leu, afirmou que 7 não é maior do que 4 e o discente aceitou. Elevar o nível da discussão, uma vez que as IAs só têm falado do básico. Orientações de professores das áreas pedagógicas e institucionalização do uso dessas ferramentas. Útil para gerar imagens específicas. Fornece respostas rápidas sem embasamento sólido, guiadas por popularidade de um site e não por correção. Cria uma sensação de preguiça coletiva e faz parecer que o conhecimento adquirido seria inútil, uma vez que não faz sentido armazenar conhecimento se ele está disponível a todos instantaneamente. uma segunda parte avaliativa em que o estudante precise explicar o que fez. Gostaria que alguém mostrasse de forma comprovada cientificamente quais os benefícios do uso da IA no ambiente acadêmico, além do corretor de texto e da busca similar ao Google. Nas Engenharias há um interesse por parte dos alunos para saber utilizar as ferramentas de IA. Oferecemos cursos e oficinas para a graduação, ensino fundamental, médio e profissional e a experiência está muito positiva. procurei me atualizar para compreender os aspectos e impactos do uso da IA na educação e no mundo do trabalho. fazer os alunos compreenderem que a ferramenta deve ser um apoio para ampliar o aprendizado e a produtividade em tarefas rotineiras. elaborar os prompts de forma inteligente. os desafios passam por acessibilidade a ferramentas profissionais, tempo de amadurecimento sobre a tecnologia, capacitação, e falta de tempo para se preparar. capacitar os professores em nível básico e depois avançar. Seminários, jogos didáticos, provas que tragam questões desses trabalhos de acesso livre. definir orientações mais claras além das que a CAPES fornece. Preparação de apresentação. Uso apenas cópia e cola sem avaliar resultado ou fazer intervenção própria. Aluna acessando IA para responder questões de prova. Como avaliar isso de forma a não inibir o uso adequado. Tenho usado IAs para atualizar minhas aulas e pedir exemplos práticos que enriqueçam e contextualizem o conhecimento teórico. Alguns alunos apenas copiam o texto gerado pela IA sem reflexão crítica. Permitir o uso de IA mas estimular o pensamento crítico, deixando para a IA apenas o trabalho repetitivo ou de suporte. Como usar a IA para melhorar as aulas e automatizar tarefas burocráticas. Confecção de desenhos para publicação. criamos um modelo de relatório para as atividades de aula e os estudantes perceberam que há pontos que permanecem inalterados e outros que precisam ser estudados e analisados com atenção, a IA pode dar direcionamento e coerência se eles souberem conduzir ela. o estudante não quer estar naquela aula e faz apenas para cumprir tabela. Formamos seres críticos, precisamos nos adaptar e atualizar. Olhe para seu estudante individualmente e avalie ele dia a dia. Um discente recorreu à IA para obter uma resolução detalhada e compreendeu onde estava o erro. vários alunos finalizaram a tentativa em poucos minutos e obtiveram nota máxima, pela complexidade dos problemas o tempo estimado para uma resolução orgânica não deveria ser menor. Ao colar as questões no ChatGPT ele resolveu todas corretamente e forneceu exatamente o mesmo valor inclusive de algarismos significativos inseridos por alguns dos estudantes. a especificação da tarefa foi atualizada para inserir elementos de pontuação que a IA ainda não consegue fazer, valorizar trabalhos autorais e penalizar trabalhos automatizados. o aluno foi chamado e confrontado com o próprio trabalho. Discutir os mecanismos e razões que levam os alunos a usarem a IA, a solução de um problema por IA é um atalho, por qual motivo o aluno está evitando o caminho principal, desinteresse pelo conteúdo, conteúdo difícil, evitar a frustração, preguiça. por que alunos expostos à mesma aula, ao mesmo conteúdo e com o mesmo professor, uns fazem uso de IA e outros praticamente não. `;
+OPENTEXT+=`Geralmente vejo como positivo quando a IA faz ajustes na coesão e coerência do texto. Minha maior preocupação é imaginar que o estudante não refletiu o suficiente sobre a criação de um próprio texto, usando o que ele já sabe ou estudou. como não havia estabelecido regras claras quanto ao uso da IA, não penalizei nenhum estudante. Fiz uma chamada geral com a turma, alertando pela falta de senso crítico e redação das próprias ideias quando se opta em usar apenas a IA. um estudante pode usar a IA e depois comparar com resposta-espelho dada pelo professor. Para fazer breves pesquisas, iniciar ideias, gerar opções de aprimoramentos de textos já criados. Já percebi muito conceito equivocado em trabalhos acadêmicos de alunos gerados por IA. Mantenho junto a entrega do material escrito a apresentação para ser uma oportunidade de debate do tema e questionamento aos alunos, mesmo se realizado por IA é possível avaliar melhor o conhecimento do estudante. Manter uma etapa de debate amplo entre a turma e professores. Regras impostas para o uso de IA na educação e universidade. Alunos deixam de pesquisar, de ler, de raciocinar. Pegam resumos equivocados e errados do chatgpt, não apreendem o conteúdo. Suspendemos o uso de tecnologias em aula, os alunos devem trazer as pesquisas por escrito e mesmo assim não temos garantias de que eles não copiaram da IA. pelo menos tiveram que copiar a mão. Que sejam realizados em sala de aula sem acesso à IA. este tipo de pesquisa via formulário é um método frágil pedagogicamente para construir qualquer política institucional. a ferramenta de IA me auxilia a tornar minhas aulas práticas mais didáticas e interessantes aos alunos, deixando de ser apenas reproduções de roteiros. o ideal é tornar o trabalho o mais personalizado possível, criando problemas concretos, roteiros e questões práticas onde o aluno não consiga resolver apenas usando IA. Uso de IA em pesquisas para revisão de literatura em TCCs. Os alunos não sabem usar. De forma presencial. A UFPEL poderia ter um material informativo e educativo tanto para alunos como para professores e servidores. o tempo para a preparação de uma aula foi fantástico. conversei com o estudante e perguntei sobre o uso. Que a universidade tivesse estrutura consolidada para capacitação de professores, estudantes e servidores. Usabilidade e limites possíveis e éticos. Escrita de textos burocráticos. Apresentação de trabalhos. Forma oral. A IA tem sido boa para gerar imagens dos trabalhos que exigem design, cards para eventos. me auxiliou na correção ortográfica e adequação à ABNT. Alunos que simplesmente pedem para a IA fazer o trabalho, ao invés de utilizar a IA como ferramenta. Recebi resumos de orientandos e reescrevi. É fundamental alunos fazerem provas dissertativas presenciais. existe uma demonização da IA. Tem que ser discutido casos práticos. Recebi um TCC repleto de citações bibliográficas falsas que foram alucinações da IA. O referencial teórico completamente realizado por IA levou o aluno a ser reprovado e orientado a refazer o trabalho. A suspeita de uso errado de IA foi confirmada pelo próprio aluno. Uso ético da IA. Gosto de debater com a IA sobre propostas de atividades em aula. Ela me auxilia a preparar material para dinâmicas mais interativas, como debates a partir de cenários, role playing. na preparação de lâminas e gráficos customizados. Formata referências de modo rápido. O desafio é perceber que o aluno usou IA mas não poder acusá-lo. Procuro trazer o debate sobre como funcionam os modelos e suas limitações. o mais desafiador foi quando propus o diálogo com a IA enquanto atividade e os alunos não conseguiam fazê-lo, pois percebiam a resposta da IA como pronta e acabada e superior à sua, sem espaço para questionamento. Coloquei uma nota baixa e expliquei os indícios de IA e as inconsistências. buscado usar a IA para criar situações problemas em que os alunos mobilizem as teorias para resolvê-los. a IA questiona as competências consagradas ao ensino superior, seria interessante discutir quais serão as competências necessárias em um mundo pós-ia. A IA aumenta a produtividade das pesquisas que exigem dados e testagens. Apresentação e defesa oral do trabalho. Os exercícios das disciplinas que ministro demandam cálculos simples. peço que sejam feitos em papel, mas sempre me tomou tempo elaborar enunciados nos quais os resultados fossem exatos. Com o uso de IA essa tarefa ficou mais simples. Como forma de recuperação das avaliações eu pedia a entrega de uma versão corrigida, com a disponibilidade da IA esse tipo de prática perde o sentido, ela resolve os exercícios em segundos. uma avaliação oral poderia ajudar, ao questionar os alunos sobre o conteúdo do trabalho entregue eles teriam que estudar o conteúdo gerado pela IA. como delimitar o uso de IA assumindo que o uso é praticamente garantido. Correção da escrita. Para cálculos nem sempre dão a resposta correta. Melhora nas aulas. Aluno que entrega trabalho pronto. Trabalho enviado com o prompt e só. A IA tem acelerado tarefas mecânicas e burocráticas, escrita de memorandos, correções gramaticais, desambiguação de conceitos. auxiliado a organizar estrutura de escrita sem usá-la para produção de conteúdo. Muitos alunos estão usando a IA para a produção de conteúdo e elaboração de trabalhos sem fazer reflexão sobre o que recebem e sem se preocupar com o domínio da temática. Contextualização rápida sobre temas ou áreas que aceleram a compreensão. Inibição do raciocínio e da capacidade de compreensão pelo uso equivocado da IA e pela falta de leitura crítica do que foi entregue. Relatórios que deviam ser manuscritos eram nitidamente gerados por IA, perceptíveis padrões impossíveis pela escrita humana e inconsistências. indispensável a leitura crítica humana, embora possam ser empregadas ferramentas de IA para auxiliar. os docentes estão sobrecarregados com atividades administrativas e a docência. Como disponibilizar conteúdos específicos como base referencial bibliográfica para os estudantes usarem em conjunto com ferramentas de IA. Meus materiais se tornaram mais organizados e didáticos, vejo os alunos interagindo mais, isso cria maior acessibilidade aos conteúdos. adaptados para alunos com dificuldades. quando usam têm tido ganho de aprendizado maior mas menor retenção desse conhecimento, por isso voltei a fazer provas a mão. alunos estavam delegando todo o aprendizado para a IA, comecei a avaliar oralmente e por escrito, vejo problema na utilização sem reflexão. Possuo um aluno com autismo, utilizou as ferramentas para adaptar os conteúdos, criei prompts específicos e revisei os documentos gerados, facilitou a adaptação e o aluno se sentiu mais integrado. cobrado que sejam escritos a mão e explicações no dia da entrega. verificar se as práticas adotadas estão de acordo com as práticas defendidas pela comunidade docente da ufpel. `;
+OPENTEXT+=`Apresentação de trabalhos mais organizados. Atividade de resenha toda realizada pela IA. Fiquei em dúvida em relação a avaliação por não ter conhecimento sobre o uso da IA. Não tenho opinião no momento. Quando bem utilizada a IA reduz nosso tempo para realizar atividades, montar planilhas, material didático. Minhas experiências de alunos utilizando IA são que eles não querem nem ler os conteúdos, jogam na IA e pedem resumos do material. E quando é um trabalho pedem que seja realizado o relatório. Reduzi muito esse tipo de atividade pois não há aprendizado nisso. Alunos que questionam fatos apresentados pelos professores e pelas bibliografias baseados em consultas a mecanismos de inteligência artificial generativa. Discussão argumentativa. `;
+OPENTEXT+=`Resposta a revisores de periódicos, auxílio na melhoria de textos e análise estatística de pesquisa. Alunos que não sabem usar e propagam os erros da IA. Fingi não saber que foi IA para não ter problemas com o aluno, já que não temos regras claras institucionais para amparar o docente. Ética no uso da IA. Normalmente o aluno apresenta um texto muito bem escrito e não consegue apresentar com a mesma qualidade, percepção clara de despreparo ou compreensão rasa do texto produzido pela IA. `;
+OPENTEXT+=`Um aluno elaborou durante a disciplina de banco de dados um trabalho com dados de sua empresa, pôde apresentar os resultados aos seus gestores onde foi bem visto e está propondo um artigo explicando o processo para o SIIEPE. Prevendo o que poderia acontecer adaptei minha metodologia para evitar experiências negativas. Realizo seminários onde questiono o processo de raciocínio para a solução do problema de maneira a estimular o explicar o conteúdo, e peço que expliquem como usaram IA, não adoto práticas punitivas. Não há maneira ideal, não há bala de prata, cada componente curricular tem suas especificidades, sugiro adotar o método socrático. Precisei montar uma questão de prova de cálculo, pedi para uma IA exemplos de questões sobre o conteúdo e ela me deu uma lista, ficou mais fácil de escolher e adaptar, não precisei pesquisar tanto em livros e apostilas. Uns alunos colaram em uma prova usando IA, colocaram tudo que era apresentado na IA mesmo que não tivesse nada a ver com a matéria, tentaram me enganar e tiraram zero. Identifiquei que era IA pois os alunos escreveram nos números um texto de espaçamento de matriz, característica do uso de IA no celular. Confirmar algumas citações e alguns pontos do trabalho oralmente, se esse for o caso não é melhor aplicar prova oral logo de uma vez. Tenho utilizado IA como ferramenta de apoio na organização de conteúdos, revisão de textos e discussão de trabalhos científicos, quando utilizada de forma crítica percebo ganho de produtividade e maior facilidade dos alunos em explorar diferentes abordagens. Já observei trabalhos com respostas muito genéricas provavelmente produzidas por IA nas quais o aluno demonstrava pouco domínio do conteúdo, o principal problema é quando a IA substitui o processo de aprendizagem em vez de apoiá-lo. Em situações de suspeita procuro avaliar se o aluno consegue explicar e defender oralmente aquilo que escreveu, mais adequado verificar o domínio do conteúdo do que comprovar se houve uso de IA. Acredito em avaliações que combinem produção escrita, resolução de problemas e discussão oral, o uso de IA pode ser permitido desde que o estudante demonstre capacidade crítica, domínio conceitual e responsabilidade sobre o conteúdo entregue. Gostaria de discutir como incorporar a IA às atividades acadêmicas sem comprometer a aprendizagem e quais estratégias de avaliação diferenciam o uso produtivo da simples substituição do trabalho intelectual do estudante. Uso IA com frequência para buscar exemplos de aplicações de conceitos teóricos e para melhorar o material didático incluindo questões para reflexão discutidas em sala de aula. Percebi a dependência do uso de IA por parte de um aluno numa lista de exercícios com gabarito disponível após o envio, alguns alunos estavam colando respostas de IA em toda a lista desvirtuando o sentido do exercício que era fazê-los pensar e estudar. Em diversas apresentações de trabalho percebe-se que a criação dos slides é toda feita por IA e o aluno não sabe o que está mostrando, costumo avaliar com nota baixa e informar o motivo, mas em turmas grandes fica difícil dar feedback a todos. Acredito que a única forma seria pela avaliação oral com perguntas relacionadas ao trabalho que possam gerar um debate ou explicação direcionada a pontos específicos. Como criar critérios menos subjetivos ao avaliar apresentações orais e escritas de trabalhos, com ou sem permissão do uso de IA. `;
+OPENTEXT+=`O uso de IA tem ajudado a melhorar meu material de aula e me auxilia na redação de respostas de emails. Os alunos às vezes sequer leem o que foi escrito pela IA, entregando textos sem nenhuma relação com o que foi solicitado. A defesa oral pode ser utilizada para avaliar o quanto o aluno conseguiu aprender na elaboração de trabalhos teóricos. Até onde devemos limitar o uso de IA e como potencializar o uso dela nas nossas aulas. Desenvolvimento de infográficos resumo dos principais conceitos vistos em aula. Não gosto do conceito de trabalho teórico, a IA fortalece a necessidade de avaliação presencial ou oral. Entendo que a UFPel deva elaborar logo diretrizes, uma vez que já existem a nível de governo federal nos três níveis principais de ensino. Considero importante e positivo o cuidado que estou tendo em registrar por conta própria normas mínimas de uso de IA nos planos de ensino das minhas disciplinas. Gostaria de saber a previsão de termos uma normativa institucional de uso de IA e se será ofertada capacitação aos docentes. A organização de apostilas que eu já utilizava atualizando alguns conteúdos e exemplos. Durante a avaliação de uma atividade prática o aluno teve dificuldade em explicar algumas constatações feitas no relatório final, depois de questionado e confirmado o uso da IA descontei a nota equivalente ao relatório mantendo somente a nota da prática. A IA pode funcionar como um colega com quem se pode trocar ideias sobre o tema analisado, se bem utilizada e com conceitos bem fundamentados por parte do aluno. O maior desafio envolvendo o uso da IA pelos alunos é fazê-los reconhecer a importância de revisar criticamente o material gerado, especialmente os termos técnicos, as informações científicas e as referências utilizadas, pois muitas vezes a ferramenta produz textos bem estruturados mas com referências inexistentes ou informações cientificamente incorretas. Outro desafio é orientar quanto ao uso ético, responsável e transparente, incluindo a declaração nos trabalhos de como e com qual finalidade a IA foi utilizada. Em bancas de TCC e de dissertação de mestrado identifiquei o uso inadequado de IA na elaboração dos textos, com erros de interpretação e fragilidades no conhecimento do tema. A IA pode auxiliar na escrita e na organização das ideias mas não substitui o domínio do conteúdo, a autoria intelectual e a revisão crítica pelo pesquisador. A forma ideal seria avaliar não apenas o texto final mas todo o processo de construção do trabalho, os estudantes poderiam utilizar livremente a IA desde que declarassem como e com quais objetivos ela foi empregada. Considero fundamental que a UFPel elabore um regulamento institucional acompanhado de um documento orientativo e didático sobre o uso de IA na graduação e na pós-graduação, com princípios comuns de uso ético, crítico, responsável e transparente. Coordeno um projeto de ensino onde temos encontros com alunos para estudar a forma mais adequada de utilizar os recursos da IA, identificar respostas inadequadas e formular prompts. Substituí a avaliação que antes era feita unicamente pelo conteúdo escrito pela apresentação oral do trabalho ou discussão em sala de aula. Solicitar que seja disponibilizado para avaliação o raciocínio desenvolvido ao longo do trabalho, com avaliação dos prompts utilizados. Regulamentação e ética no uso da IA na UFPel. `;
+OPENTEXT+=`Uma aluna gerou rápida e automaticamente um estudo de insolação em volumetria em um prédio com ajuda do Claude, a partir daí pudemos comprovar a adequação de um recuo lateral maior. Sempre a defesa presencial, com perguntas orais. A questão é levar o aluno a defender oralmente um trabalho ou uma dissertação em que a IA possa ter sido utilizada, ou realizar provas sem celular. Não entendo o porquê de tanto medo da IA, o próprio CNPq já estabeleceu orientações para seu uso ético tendo como princípio básico a declaração de seu uso. O futuro chegou para ficar, tenho mais de 30 anos de docência e me considero uma profissional sempre atualizada e em busca de novos conhecimentos, tanto na parte prática quanto no uso ético e responsável das novas tecnologias. Entrei na docência na era analógica e provavelmente sairei na era da IA, as pessoas parecem se comportar diante dela de maneira semelhante ao que ocorreu quando surgiram a internet, as ferramentas de busca, os softwares de edição de texto e as planilhas eletrônicas, houve os mesmos receios e questionamentos. Nada disso substituiu a sensibilidade e a criatividade humanas, a IA é uma tecnologia da inteligência que auxilia os processos do intelecto humano. Considero fundamental que professores e técnicos administrativos tenham oportunidades de capacitação para seu uso ético, consciente e responsável. É preciso conferir tudo o que a IA produz, não se pode confiar cegamente nela. `;
+function apply(){const rows=subset();renderKPIs(rows);renderInsights(rows);renderCharts(rows);}
+function init(){
+ opts($('#fArea'),'ar',null);opts($('#fTempo'),'tp',ORD.tempo);opts($('#fAtua'),'at',null);
+ $('#fArea').onchange=e=>{state.ar=e.target.value;apply();};
+ $('#fTempo').onchange=e=>{state.tp=e.target.value;apply();};
+ $('#fAtua').onchange=e=>{state.at=e.target.value;apply();};
+ $('#clear').onclick=()=>{state.ar=state.tp=state.at='';$('#fArea').value='';$('#fTempo').value='';$('#fAtua').value='';apply();};
+ $('#palToggle').onclick=()=>{const next=PALACTIVE==='okabe'?'terra':'okabe';setPalette(next);$('#palToggle').textContent='Paleta: '+PAL[next].nome;renderAll();};
+ renderAll();
+}
+init();
+</script>
+</body>
+</html>
