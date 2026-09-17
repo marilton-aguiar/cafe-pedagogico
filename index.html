@@ -75,7 +75,7 @@ section.block{margin-bottom:44px}
 .likert-legend{display:flex;gap:18px;margin-bottom:8px;font-size:13px;color:var(--ink2);flex-wrap:wrap}
 .likert-legend span{display:inline-flex;align-items:center;gap:7px}
 .likert-legend i{width:14px;height:14px;border-radius:3px}
-.chartbox.likert{height:760px}
+.chartbox.likert{height:1040px}
 /* voices */
 .voice-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
 .vtab{font-family:inherit;font-size:13px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 15px;cursor:pointer;color:var(--ink2)}
@@ -403,9 +403,9 @@ $('#sections').innerHTML=`
   <p class="cap" style="margin-top:12px" id="heatNoteEA"></p></div>
 </section>
 
-<section class="block"><div class="blockhead"><span class="num">06</span><h2>Concordância com afirmações sobre IA</h2><span class="note">19 afirmações · ordem decrescente de discordância</span></div>
+<section class="block"><div class="blockhead"><span class="num">06</span><h2>Concordância com afirmações sobre IA</h2><span class="note">19 afirmações · agrupadas por tema</span></div>
  <div class="card">
-  <p class="cap" style="margin-bottom:10px">Itens ordenados de cima para baixo pela maior parcela de discordância (níveis 1–2). Passe o mouse para ver o % que discorda de cada afirmação.</p>
+  <p class="cap" style="margin-bottom:10px">Itens agrupados pelos <b>nove temas</b> do questionário (cabeçalhos em destaque). Os temas aparecem do mais ao menos contestado (maior discordância média no topo) e, dentro de cada tema, os itens seguem a mesma ordem. Passe o mouse para ver o % de cada nível.</p>
   <div class="likert-legend" id="lkLegend"></div>
   <div class="chartbox likert"><canvas id="cLikert"></canvas></div>
  </div></section>
@@ -615,14 +615,21 @@ function renderLikert(rows){
    pc=fl.slice();
    raw.map((r,i)=>({i,f:r-fl[i]})).sort((a,b)=>b.f-a.f).forEach((o,k)=>{if(k<rem)pc[o.i]++;});
   }
-  return{idx,n:v.length,c,dis,pc};
+  return{idx,g:LK[idx].g,n:v.length,c,dis,pc};
  });
- per.sort((a,b)=>b.dis-a.dis||a.idx-b.idx);
- const ds=[0,1,2,3,4].map(level=>({label:['1','2','3','4','5'][level],data:per.map(p=>p.pc[level]),rawc:per.map(p=>p.c[level]),backgroundColor:DIV[level],borderColor:'#fffdf9',borderWidth:1,barThickness:'flex',maxBarThickness:26}));
- make('cLikert',{type:'bar',data:{labels:per.map(p=>wrap(LK[p.idx].s,42)),datasets:ds},
+ // agrupa por tema; temas ordenados pela discordância média (desc), itens dentro do tema por discordância (desc)
+ const themes=[...new Set(LK.map(l=>l.g))];
+ const tmean=t=>{const a=per.filter(p=>p.g===t);return a.reduce((s,p)=>s+p.dis,0)/a.length;};
+ themes.sort((a,b)=>tmean(b)-tmean(a));
+ const rowsO=[];
+ themes.forEach(t=>{ rowsO.push({header:true,theme:t}); per.filter(p=>p.g===t).sort((a,b)=>b.dis-a.dis||a.idx-b.idx).forEach(p=>rowsO.push({header:false,p})); });
+ const isHead=rowsO.map(r=>r.header);
+ const labels=rowsO.map(r=>r.header?('◆  '+r.theme.toUpperCase()):wrap(LK[r.p.idx].s,42));
+ const ds=[0,1,2,3,4].map(level=>({label:['1','2','3','4','5'][level],data:rowsO.map(r=>r.header?0:r.p.pc[level]),rawc:rowsO.map(r=>r.header?0:r.p.c[level]),backgroundColor:DIV[level],borderColor:'#fffdf9',borderWidth:1,barThickness:'flex',maxBarThickness:24}));
+ make('cLikert',{type:'bar',data:{labels,datasets:ds},
   options:{indexAxis:'y',layout:{padding:{right:6}},
-   scales:{x:{stacked:true,max:100,grid:{color:COL.line,drawBorder:false},ticks:{callback:v=>v+'%'}},y:{stacked:true,grid:{display:false},ticks:{font:{size:10},autoSkip:false}}},
-   plugins:{legend:{display:false},tooltip:{callbacks:{title:i=>LK[per[i[0].dataIndex].idx].s,label:c=>`Nível ${c.dataset.label}: ${c.dataset.rawc[c.dataIndex]} resp. (${c.raw}%)`,afterBody:i=>{const p=per[i[0].dataIndex];return 'Tema: '+LK[p.idx].g+' · discordam (1–2): '+Math.round(p.dis)+'%';}}}}}});
+   scales:{x:{stacked:true,max:100,grid:{color:COL.line,drawBorder:false},ticks:{callback:v=>v+'%'}},y:{stacked:true,grid:{display:false},ticks:{autoSkip:false,color:c=>isHead[c.index]?COL.terra:COL.ink,font:c=>isHead[c.index]?{size:11,weight:'800'}:{size:10,weight:'400'}}}},
+   plugins:{legend:{display:false},tooltip:{filter:i=>!isHead[i.dataIndex],callbacks:{title:i=>{const r=rowsO[i[0].dataIndex];return r.header?'':LK[r.p.idx].s;},label:c=>isHead[c.dataIndex]?'':`Nível ${c.dataset.label}: ${c.dataset.rawc[c.dataIndex]} resp. (${c.raw}%)`,afterBody:i=>{const r=rowsO[i[0].dataIndex];return r.header?'':'Tema: '+r.p.g+' · discordam (1–2): '+Math.round(r.p.dis)+'%';}}}}}});
 }
 
 /* ===== DEPOIMENTOS (verbatim) ===== */
