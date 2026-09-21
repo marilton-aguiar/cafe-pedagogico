@@ -74,6 +74,7 @@ section.block.collapsed{margin-bottom:14px}
 section.block.collapsed .blockhead{margin-bottom:0}
 section.block.collapsed .blockhead::after{transform:translateY(-50%) rotate(-90deg)}
 section.block.collapsed > :not(.blockhead){display:none}
+.hint{background:#eef4fb;border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:10px;padding:11px 16px;margin:0 0 24px;font-size:13.5px;line-height:1.5;color:var(--ink2)}
 .blockhead .num{font-family:'Figtree','Avenir Next','Segoe UI',system-ui,sans-serif;font-size:15px;color:var(--terra);font-weight:700}
 .blockhead h2{font-size:23px}
 .blockhead .note{margin-left:auto;font-size:13px;color:var(--muted)}
@@ -169,7 +170,7 @@ footer b{color:var(--ink2)}
       <div class="fgroup"><label for="fAtua">Atuação</label><select id="fAtua"></select></div>
       <button id="clear">Limpar filtros</button>
       <button id="palToggle" title="Alternar paleta de cores">Paleta: UFPel</button>
-      <button id="secToggle" title="Recolher ou expandir todas as seções">Recolher seções</button>
+      <button id="secToggle" title="Recolher ou expandir todas as seções">Expandir seções</button>
       <div class="nresult">Analisando <b id="nBig">130</b> de 130 respostas</div>
     </div>
   </div>
@@ -412,7 +413,12 @@ function subset(){return R.filter(r=>(!state.ar||r.ar===state.ar)&&(!state.tp||r
 
 /* ===== BUILD SECTION SHELLS ===== */
 $('#sections').innerHTML=`
-<section class="block"><div class="blockhead"><span class="num">01</span><h2>Perfil dos respondentes</h2><span class="note">quem respondeu</span></div>
+<p class="hint">As seções começam <b>recolhidas</b>. Clique no título de qualquer seção para expandi-la — ou use o botão <b>“Expandir seções”</b>, no topo, para abrir todas de uma vez.</p>
+<section class="block"><div class="blockhead"><span class="num">01</span><h2>Leituras principais</h2><span class="note">síntese automática · recalcula a cada nova resposta</span></div>
+ <p class="cap" style="margin:-4px 0 16px">Sínteses geradas automaticamente a partir de <b id="readN"></b> respostas. Os números se atualizam sozinhos conforme novos docentes respondem.</p>
+ <div id="readings"></div>
+</section>
+<section class="block"><div class="blockhead"><span class="num">02</span><h2>Perfil dos respondentes</h2><span class="note">quem respondeu</span></div>
  <div class="grid g3">
   <div class="card" style="grid-column:span 1"><h3>Área de conhecimento</h3><p class="cap">docentes por grande área</p><div class="chartbox tall"><canvas id="cArea"></canvas></div></div>
   <div class="card"><h3>Tempo de docência</h3><p class="cap">anos de carreira</p><div class="chartbox tall"><canvas id="cTempo"></canvas></div></div>
@@ -420,7 +426,7 @@ $('#sections').innerHTML=`
    <h3 style="margin-top:16px">Formação em IA</h3><p class="cap">capacitação recebida</p><div class="chartbox" style="height:clamp(180px,22vh,220px)"><canvas id="cForm"></canvas></div></div>
  </div></section>
 
-<section class="block"><div class="blockhead"><span class="num">02</span><h2>Uso pessoal de IA pelos docentes</h2><span class="note">prática própria</span></div>
+<section class="block"><div class="blockhead"><span class="num">03</span><h2>Uso pessoal de IA pelos docentes</h2><span class="note">prática própria</span></div>
  <div class="grid g23">
   <div class="card"><h3>Ferramentas utilizadas</h3><p class="cap">múltipla escolha — % sobre o recorte</p><div class="chartbox tall"><canvas id="cTools"></canvas></div></div>
   <div class="card"><h3>Frequência de uso</h3><p class="cap">com que frequência usam IA</p><div class="chartbox tall"><canvas id="cFreq"></canvas></div></div>
@@ -430,14 +436,14 @@ $('#sections').innerHTML=`
   <div class="card"><h3>Nível de confiança no uso</h3><p class="cap">1 pouco · 5 muito confiante</p><div class="chartbox"><canvas id="cConf"></canvas></div></div>
  </div></section>
 
-<section class="block"><div class="blockhead"><span class="num">03</span><h2>Percepção do uso pelos discentes</h2><span class="note">o que veem em sala</span></div>
+<section class="block"><div class="blockhead"><span class="num">04</span><h2>Percepção do uso pelos discentes</h2><span class="note">o que veem em sala</span></div>
  <div class="grid g3">
   <div class="card"><h3>Frequência percebida nos alunos</h3><p class="cap">1 &lt;10% · 5 &gt;90% dos trabalhos</p><div class="chartbox"><canvas id="cFreqAl"></canvas></div></div>
   <div class="card"><h3>Onde percebem mais uso</h3><p class="cap">tipos de atividade — múltipla escolha</p><div class="chartbox"><canvas id="cAtiv"></canvas></div></div>
   <div class="card"><h3>Política de uso na disciplina</h3><p class="cap">existe regra definida?</p><div class="chartbox"><canvas id="cPol"></canvas></div></div>
  </div></section>
 
-<section class="block"><div class="blockhead"><span class="num">04</span><h2>Impactos e avaliação</h2><span class="note">efeitos percebidos</span></div>
+<section class="block"><div class="blockhead"><span class="num">05</span><h2>Impactos e avaliação</h2><span class="note">efeitos percebidos</span></div>
  <div class="grid g3">
   <div class="card"><h3>Efeito na aprendizagem</h3><p class="cap">1 muito negativo · 5 muito positivo</p><div class="chartbox"><canvas id="cAprend"></canvas></div></div>
   <div class="card"><h3>Efeito na produtividade docente</h3><p class="cap">1 muito negativo · 5 muito positivo</p><div class="chartbox"><canvas id="cProd"></canvas></div></div>
@@ -450,7 +456,7 @@ $('#sections').innerHTML=`
  <div class="card" style="margin-top:16px"><h3>Oportunidades identificadas para a IA</h3><p class="cap">até 3 por docente — % sobre o recorte</p><div class="chartbox tall"><canvas id="cOport"></canvas></div></div>
 </section>
 
-<section class="block"><div class="blockhead"><span class="num">05</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 130 respostas</span></div>
+<section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 130 respostas</span></div>
  <div class="card"><h3>Frequência de uso por área de conhecimento</h3><p class="cap">cor = % dos docentes da linha naquela frequência · número = docentes · "uso freq." = semanal + diário</p>
   <div id="heat" class="heat"></div>
   <p class="cap" style="margin-top:12px" id="heatNote"></p></div>
@@ -468,17 +474,12 @@ $('#sections').innerHTML=`
   <p class="cap" style="margin-top:12px" id="heatNoteEA"></p></div>
 </section>
 
-<section class="block"><div class="blockhead"><span class="num">06</span><h2>Concordância com afirmações sobre IA</h2><span class="note">19 afirmações · agrupadas por tema</span></div>
+<section class="block"><div class="blockhead"><span class="num">07</span><h2>Concordância com afirmações sobre IA</h2><span class="note">19 afirmações · agrupadas por tema</span></div>
  <div class="card">
   <p class="cap" style="margin-bottom:10px">Itens agrupados pelos <b>nove temas</b> do questionário (cabeçalhos em destaque). Os temas aparecem do mais ao menos contestado (maior discordância média no topo) e, dentro de cada tema, os itens seguem a mesma ordem. Passe o mouse para ver o % de cada nível.</p>
   <div class="likert-legend" id="lkLegend"></div>
   <div class="chartbox likert"><canvas id="cLikert"></canvas></div>
  </div></section>
-
-<section class="block"><div class="blockhead"><span class="num">07</span><h2>Leituras principais</h2><span class="note">síntese automática · recalcula a cada nova resposta</span></div>
- <p class="cap" style="margin:-4px 0 16px">Sínteses geradas automaticamente a partir de <b id="readN"></b> respostas. Os números se atualizam sozinhos conforme novos docentes respondem.</p>
- <div id="readings"></div>
-</section>
 
 <section class="block"><div class="blockhead"><span class="num">08</span><h2>Experiências positivas concretas</h2><span class="note">síntese dos relatos abertos</span></div>
  <p class="cap" style="margin:-4px 0 16px">Síntese qualitativa das respostas à pergunta "Descreva uma experiência positiva concreta envolvendo IA (sua ou de um aluno)". A maior parte dos 88 respondentes trouxe um exemplo concreto; os relatos se concentram em cinco frentes. Os usos voltados ao próprio trabalho docente predominam, mas cresce um conjunto de casos centrados no aluno.</p>
@@ -940,7 +941,8 @@ function init(){
  $('#fAtua').onchange=e=>{state.at=e.target.value;apply();};
  $('#clear').onclick=()=>{state.ar=state.tp=state.at='';$('#fArea').value='';$('#fTempo').value='';$('#fAtua').value='';apply();};
  $('#palToggle').onclick=()=>{const next=PALACTIVE==='ufpel'?'okabe':'ufpel';setPalette(next);$('#palToggle').textContent='Paleta: '+PAL[next].nome;renderAll();};
- let secCol=false;const secT=$('#secToggle');
+ let secCol=true;const secT=$('#secToggle');
+ document.querySelectorAll('section.block').forEach(s=>s.classList.add('collapsed'));secT.textContent='Expandir seções';
  secT.onclick=()=>{secCol=!secCol;document.querySelectorAll('section.block').forEach(s=>s.classList.toggle('collapsed',secCol));secT.textContent=secCol?'Expandir seções':'Recolher seções';if(!secCol)window.dispatchEvent(new Event('resize'));};
  document.querySelectorAll('.blockhead').forEach(h=>h.addEventListener('click',()=>{const s=h.closest('section.block');s.classList.toggle('collapsed');if(!s.classList.contains('collapsed'))window.dispatchEvent(new Event('resize'));}));
  renderAll();
