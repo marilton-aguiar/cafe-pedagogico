@@ -51,8 +51,8 @@ header.top .sub{margin-top:18px;font-size:17px;color:var(--ink2);max-width:70ch}
 .fgroup label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
 .fgroup select{font-family:inherit;font-size:14px;color:var(--ink);background:#fff;border:1px solid var(--line);border-radius:9px;padding:8px 12px;min-width:200px;cursor:pointer}
 .fgroup select:focus{outline:2px solid var(--teal);outline-offset:0}
-#clear,#palToggle{align-self:flex-end;font-family:inherit;font-size:13px;background:none;border:1px solid var(--line);border-radius:9px;padding:9px 14px;color:var(--ink2);cursor:pointer}
-#clear:hover,#palToggle:hover{background:#fff;border-color:var(--terra);color:var(--terra)}
+#clear,#palToggle,#secToggle{align-self:flex-end;font-family:inherit;font-size:13px;background:none;border:1px solid var(--line);border-radius:9px;padding:9px 14px;color:var(--ink2);cursor:pointer}
+#clear:hover,#palToggle:hover,#secToggle:hover{background:#fff;border-color:var(--terra);color:var(--terra)}
 #palToggle{border-color:var(--teal);color:var(--teal)}
 .nresult{margin-left:auto;align-self:flex-end;font-size:13px;color:var(--ink2)}
 .nresult b{font-family:'Figtree','Avenir Next','Segoe UI',system-ui,sans-serif;font-size:19px;color:var(--terra)}
@@ -67,7 +67,13 @@ section.block{margin-bottom:44px}
 .resumo{margin-top:22px;padding:16px 18px;background:#eef4fb;border:1px solid var(--line);border-left:4px solid var(--terra);border-radius:10px}
 .resumo h4{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--terra);margin:0 0 8px}
 .resumo p{margin:0;font-size:14.5px;line-height:1.72;color:var(--ink2)}
-.blockhead{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;border-bottom:2px solid var(--ink);padding-bottom:10px}
+.blockhead{display:flex;align-items:baseline;gap:12px;margin-bottom:18px;border-bottom:2px solid var(--ink);padding-bottom:10px;position:relative;cursor:pointer;padding-right:26px}
+.blockhead::after{content:'▾';position:absolute;right:0;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px;transition:transform .2s}
+.blockhead:hover::after{color:var(--terra)}
+section.block.collapsed{margin-bottom:14px}
+section.block.collapsed .blockhead{margin-bottom:0}
+section.block.collapsed .blockhead::after{transform:translateY(-50%) rotate(-90deg)}
+section.block.collapsed > :not(.blockhead){display:none}
 .blockhead .num{font-family:'Figtree','Avenir Next','Segoe UI',system-ui,sans-serif;font-size:15px;color:var(--terra);font-weight:700}
 .blockhead h2{font-size:23px}
 .blockhead .note{margin-left:auto;font-size:13px;color:var(--muted)}
@@ -163,6 +169,7 @@ footer b{color:var(--ink2)}
       <div class="fgroup"><label for="fAtua">Atuação</label><select id="fAtua"></select></div>
       <button id="clear">Limpar filtros</button>
       <button id="palToggle" title="Alternar paleta de cores">Paleta: UFPel</button>
+      <button id="secToggle" title="Recolher ou expandir todas as seções">Recolher seções</button>
       <div class="nresult">Analisando <b id="nBig">130</b> de 130 respostas</div>
     </div>
   </div>
@@ -933,6 +940,9 @@ function init(){
  $('#fAtua').onchange=e=>{state.at=e.target.value;apply();};
  $('#clear').onclick=()=>{state.ar=state.tp=state.at='';$('#fArea').value='';$('#fTempo').value='';$('#fAtua').value='';apply();};
  $('#palToggle').onclick=()=>{const next=PALACTIVE==='ufpel'?'okabe':'ufpel';setPalette(next);$('#palToggle').textContent='Paleta: '+PAL[next].nome;renderAll();};
+ let secCol=false;const secT=$('#secToggle');
+ secT.onclick=()=>{secCol=!secCol;document.querySelectorAll('section.block').forEach(s=>s.classList.toggle('collapsed',secCol));secT.textContent=secCol?'Expandir seções':'Recolher seções';if(!secCol)window.dispatchEvent(new Event('resize'));};
+ document.querySelectorAll('.blockhead').forEach(h=>h.addEventListener('click',()=>{const s=h.closest('section.block');s.classList.toggle('collapsed');if(!s.classList.contains('collapsed'))window.dispatchEvent(new Event('resize'));}));
  renderAll();
 }
 init();
