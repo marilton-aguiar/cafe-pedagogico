@@ -148,16 +148,16 @@ footer b{color:var(--ink2)}
   </div>
   <p class="sub">Painel interativo de análise do questionário conduzido pelo Grupo de Interlocução Pedagógica (GIP). Explore os dados por área, tempo de docência e atuação — todos os gráficos se atualizam com os filtros.</p>
   <div class="ctx">
-    <span class="pill">130 respostas</span>
+    <span class="pill">131 respostas</span>
     <span class="pill">8 seções · 19 afirmações em escala</span>
     <span class="pill">Respostas anônimas · análise agregada</span>
-    <span class="pill">Coleta: 04–20/09/2026</span>
+    <span class="pill">Coleta: 04–22/09/2026</span>
   </div>
   <div class="moe" id="moeBox">
     <div class="moe-h">Precisão amostral</div>
     <div class="moe-row"><span>Nível de confiança</span><b>95%</b></div>
     <div class="moe-row err"><span>Margem de erro</span><b id="moeVal">±8,2%</b></div>
-    <div class="moe-f">n = <b id="moeN">130</b> de 1.403 docentes da UFPel · pior caso (p = 0,5) · com correção para população finita</div>
+    <div class="moe-f">n = <b id="moeN">131</b> de 1.403 docentes da UFPel · pior caso (p = 0,5) · com correção para população finita</div>
   </div>
 </header>
 </div>
@@ -171,7 +171,7 @@ footer b{color:var(--ink2)}
       <button id="clear">Limpar filtros</button>
       <button id="palToggle" title="Alternar paleta de cores">Paleta: UFPel</button>
       <button id="secToggle" title="Recolher ou expandir todas as seções">Expandir seções</button>
-      <div class="nresult">Analisando <b id="nBig">130</b> de 130 respostas</div>
+      <div class="nresult">Analisando <b id="nBig">131</b> de 131 respostas</div>
     </div>
   </div>
 </div>
@@ -180,7 +180,7 @@ footer b{color:var(--ink2)}
   <div class="kpis" id="kpis"></div>
   <div id="sections"></div>
   <footer>
-    <b>Metodologia.</b> Questionário de autopreenchimento (Google Formulários), 130 respostas anônimas de docentes da UFPel, entre 04 e 20/09/2026. Percentuais calculados sobre o total de respondentes de cada recorte; questões de múltipla escolha somam mais de 100%. Escalas de concordância de 1 (discordo totalmente) a 5 (concordo totalmente); "Discordam" agrupa 1–2 e "Concordam" agrupa 4–5. Áreas com grafia livre foram normalizadas para a classificação padrão.<br><br>
+    <b>Metodologia.</b> Questionário de autopreenchimento (Google Formulários), 131 respostas anônimas de docentes da UFPel, entre 04 e 22/09/2026. Percentuais calculados sobre o total de respondentes de cada recorte; questões de múltipla escolha somam mais de 100%. Escalas de concordância de 1 (discordo totalmente) a 5 (concordo totalmente); "Discordam" agrupa 1–2 e "Concordam" agrupa 4–5. Áreas com grafia livre foram normalizadas para a classificação padrão.<br><br>
     Elaborado com Dia · para subsidiar as discussões do Café Pedagógico.
   </footer>
 </div>
@@ -322,7 +322,8 @@ const R=[
 {ar:"Ciências Agrárias",tp:"11–20 anos",at:"ambos",fu:"raramente",fe:["ChatGPT","DeepSeek"],fi:["Pesquisa"],cf:2,fo:"Não",fa:3,av:["Resolução de exercícios"],po:"Não",ap:1,pr:3,op:[],avl:["Ainda não defini abordagem"],ps:null,ad:0,fp:"não",es:["Nenhuma estratégia específica"],lk:[4,4,5,5,1,3,1,5,3,1,2,null,null,null,null,null,null,1,1]},
 {ar:"Ciências da Saúde",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","DeepSeek","Microsoft Copilot","Grammarly","Outro"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa","Outro"],cf:4,fo:"Sim, pela instituição",fa:5,av:["Trabalhos teóricos","Resumos/resenhas"],po:"Sim, formalizada",ap:4,pr:5,op:["Produtividade","Apoio à pesquisa","Democratização do acesso"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:10,fp:"não",es:["Arguição oral","Volta a presenciais/manuscritas","Reflexão do estudante"],lk:[2,4,2,2,4,2,3,3,2,1,4,4,3,3,3,3,3,4,1]},
 {ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini Notebook","Outro"],fi:["Preparação de aulas","Produção de material didático","Outro"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Provas","Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Códigos","Resumos/resenhas"],po:"Sim, informal",ap:5,pr:5,op:["Apoio à identificação de dificuldades","Criatividade e inovação didática","Ganhos com tutoria por IA"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:9,fp:"não",es:["Comparação com histórico","Arguição oral","Avaliação presencial controlada"],lk:[2,2,2,2,1,1,2,2,5,1,1,2,1,5,1,4,3,4,1]},
-{ar:"Ciências da Saúde",tp:">20 anos",at:"graduação",fu:"semanalmente",fe:["Gemini"],fi:["Pesquisa"],cf:3,fo:"Sim, pela instituição",fa:3,av:["Provas","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:4,op:["Personalização de conteúdo","Apoio à identificação de dificuldades","Democratização do acesso"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:5,fp:"não",es:["Detector de IA","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[2,4,5,5,2,2,1,5,3,3,1,2,3,2,5,5,5,1,3]}
+{ar:"Ciências da Saúde",tp:">20 anos",at:"graduação",fu:"semanalmente",fe:["Gemini"],fi:["Pesquisa"],cf:3,fo:"Sim, pela instituição",fa:3,av:["Provas","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:4,op:["Personalização de conteúdo","Apoio à identificação de dificuldades","Democratização do acesso"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:5,fp:"não",es:["Detector de IA","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[2,4,5,5,2,2,1,5,3,3,1,2,3,2,5,5,5,1,3]},
+{ar:"Ciências da Saúde",tp:"<2 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","Grammarly"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Sim, por conta própria",fa:5,av:["Trabalhos práticos","Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Não",ap:2,pr:5,op:["Redução de carga administrativa","Criatividade e inovação didática","Desenvolvimento profissional docente"],avl:["Métodos alternativos (presencial/oral)","Ainda não defini abordagem"],ps:"sim",ad:3,fp:"não",es:["Nenhuma estratégia específica"],lk:[2,3,5,5,1,1,2,5,5,3,3,2,5,1,5,5,3,1,2]}
 ];
 /* ===== CONFIG ===== */
 let COL,CAT,DIV,RAMP11,HEATRGB,PALACTIVE;
@@ -456,7 +457,7 @@ $('#sections').innerHTML=`
  <div class="card" style="margin-top:16px"><h3>Oportunidades identificadas para a IA</h3><p class="cap">até 3 por docente — % sobre o recorte</p><div class="chartbox tall"><canvas id="cOport"></canvas></div></div>
 </section>
 
-<section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 130 respostas</span></div>
+<section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 131 respostas</span></div>
  <div class="card"><h3>Frequência de uso por área de conhecimento</h3><p class="cap">cor = % dos docentes da linha naquela frequência · número = docentes · "uso freq." = semanal + diário</p>
   <div id="heat" class="heat"></div>
   <p class="cap" style="margin-top:12px" id="heatNote"></p></div>
