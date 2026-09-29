@@ -148,16 +148,16 @@ footer b{color:var(--ink2)}
   </div>
   <p class="sub">Painel interativo de análise do questionário conduzido pelo Grupo de Interlocução Pedagógica (GIP). Explore os dados por área, tempo de docência e atuação — todos os gráficos se atualizam com os filtros.</p>
   <div class="ctx">
-    <span class="pill">139 respostas</span>
+    <span class="pill">142 respostas</span>
     <span class="pill">8 seções · 19 afirmações em escala</span>
     <span class="pill">Respostas anônimas · análise agregada</span>
-    <span class="pill">Coleta: 04–28/09/2026</span>
+    <span class="pill">Coleta: 04–29/09/2026</span>
   </div>
   <div class="moe" id="moeBox">
     <div class="moe-h">Precisão amostral</div>
     <div class="moe-row"><span>Nível de confiança</span><b>95%</b></div>
-    <div class="moe-row err"><span>Margem de erro</span><b id="moeVal">±7,9%</b></div>
-    <div class="moe-f">n = <b id="moeN">139</b> de 1.403 docentes da UFPel · pior caso (p = 0,5) · com correção para população finita</div>
+    <div class="moe-row err"><span>Margem de erro</span><b id="moeVal">±7,8%</b></div>
+    <div class="moe-f">n = <b id="moeN">142</b> de 1.403 docentes da UFPel · pior caso (p = 0,5) · com correção para população finita</div>
   </div>
 </header>
 </div>
@@ -171,7 +171,7 @@ footer b{color:var(--ink2)}
       <button id="clear">Limpar filtros</button>
       <button id="palToggle" title="Alternar paleta de cores">Paleta: UFPel</button>
       <button id="secToggle" title="Recolher ou expandir todas as seções">Expandir seções</button>
-      <div class="nresult">Analisando <b id="nBig">139</b> de 139 respostas</div>
+      <div class="nresult">Analisando <b id="nBig">142</b> de 142 respostas</div>
     </div>
   </div>
 </div>
@@ -180,7 +180,7 @@ footer b{color:var(--ink2)}
   <div class="kpis" id="kpis"></div>
   <div id="sections"></div>
   <footer>
-    <b>Metodologia.</b> Questionário de autopreenchimento (Google Formulários), 139 respostas anônimas de docentes da UFPel, entre 04 e 28/09/2026. Percentuais calculados sobre o total de respondentes de cada recorte; questões de múltipla escolha somam mais de 100%. Escalas de concordância de 1 (discordo totalmente) a 5 (concordo totalmente); "Discordam" agrupa 1–2 e "Concordam" agrupa 4–5. Áreas com grafia livre foram normalizadas para a classificação padrão.<br><br>
+    <b>Metodologia.</b> Questionário de autopreenchimento (Google Formulários), 142 respostas anônimas de docentes da UFPel, entre 04 e 29/09/2026. Percentuais calculados sobre o total de respondentes de cada recorte; questões de múltipla escolha somam mais de 100%. Escalas de concordância de 1 (discordo totalmente) a 5 (concordo totalmente); "Discordam" agrupa 1–2 e "Concordam" agrupa 4–5. Áreas com grafia livre foram normalizadas para a classificação padrão.<br><br>
     Elaborado com Dia · para subsidiar as discussões do Café Pedagógico.
   </footer>
 </div>
@@ -331,7 +331,10 @@ const R=[
 {ar:"Ciências Exatas e da Terra",tp:">20 anos",at:"graduação",fu:null,fe:["Outro"],fi:["Outro"],cf:3,fo:"Não",fa:3,av:["Resolução de exercícios"],po:"Sim, informal",ap:1,pr:null,op:["Acessibilidade","Redução de carga administrativa","Democratização do acesso"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:null,fp:null,es:["Avaliação presencial controlada"],lk:[5,null,4,4,null,3,1,4,2,2,null,5,null,null,null,null,null,null,null]},
 {ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["Claude","Grammarly"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa"],cf:5,fo:"Não",fa:5,av:["Provas","Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Códigos"],po:"Sim, informal",ap:2,pr:4,op:["Produtividade","Apoio à identificação de dificuldades","Feedback imediato"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:7,fp:"não",es:["Arguição oral","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[3,4,2,2,1,1,2,3,1,1,2,3,5,2,1,4,1,1,1]},
 {ar:"Ciências Agrárias",tp:"11–20 anos",at:"ambos",fu:"nunca",fe:["Não uso nenhuma"],fi:[],cf:null,fo:"Não",fa:2,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Não",ap:3,pr:3,op:["Personalização de conteúdo","Apoio à pesquisa","Desenvolvimento profissional docente"],avl:["Mantenho os mesmos critérios"],ps:"sim",ad:0,fp:"não tenho certeza",es:["Comparação com histórico","Arguição oral","Volta a presenciais/manuscritas"],lk:[5,5,5,5,1,1,1,5,3,3,1,1,4,4,2,5,1,1,4]},
-{ar:"Ciências Biológicas",tp:">20 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Gemini","Gemini Notebook"],fi:["Pesquisa"],cf:2,fo:"Não",fa:3,av:["Trabalhos teóricos"],po:"Ainda não, pretendo definir",ap:3,pr:2,op:["Criatividade e inovação didática","Desenvolvimento profissional docente"],avl:[],ps:"não",ad:1,fp:"não",es:["Avaliação presencial controlada","Volta a presenciais/manuscritas","Nenhuma estratégia específica"],lk:[5,5,4,5,3,1,1,5,5,3,1,1,5,1,3,5,1,2,3]}
+{ar:"Ciências Biológicas",tp:">20 anos",at:"graduação",fu:"semanalmente",fe:["ChatGPT","Gemini","Gemini Notebook"],fi:["Pesquisa"],cf:2,fo:"Não",fa:3,av:["Trabalhos teóricos"],po:"Ainda não, pretendo definir",ap:3,pr:2,op:["Criatividade e inovação didática","Desenvolvimento profissional docente"],avl:[],ps:"não",ad:1,fp:"não",es:["Avaliação presencial controlada","Volta a presenciais/manuscritas","Nenhuma estratégia específica"],lk:[5,5,4,5,3,1,1,5,5,3,1,1,5,1,3,5,1,2,3]},
+{ar:"Engenharias",tp:"11–20 anos",at:"graduação",fu:"diariamente",fe:["Claude"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático"],cf:4,fo:"Não",fa:4,av:["Resolução de exercícios","Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:3,pr:3,op:["Apoio à pesquisa","Democratização do acesso","Desenvolvimento profissional docente"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:5,fp:"não",es:["Arguição oral","Reflexão do estudante"],lk:[2,3,3,3,1,2,1,1,1,1,2,2,3,2,3,2,2,1,2]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT","Gemini","Gemini Notebook","Perplexity","DeepSeek"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Sim, por conta própria",fa:3,av:["Outro"],po:"Sim, informal",ap:4,pr:5,op:["Personalização de conteúdo","Redução de carga administrativa","Apoio à pesquisa"],avl:["Ajustei os critérios"],ps:"sim",ad:8,fp:"não",es:["Comparação com histórico","Avaliação presencial controlada","Reflexão do estudante"],lk:[1,2,3,2,1,1,2,2,1,1,1,3,1,3,3,2,1,1,2]},
+{ar:"Engenharias",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini","Gemini Notebook","DeepSeek"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:4,fo:"Não",fa:4,av:["Provas","Resolução de exercícios","Trabalhos teóricos","Redações"],po:"Ainda não, pretendo definir",ap:3,pr:4,op:["Redução de carga administrativa","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Mantenho os mesmos critérios","Ajustei os critérios"],ps:"sim",ad:7,fp:"não",es:["Comparação com histórico","Avaliação presencial controlada","Volta a presenciais/manuscritas"],lk:[5,5,5,5,3,2,1,3,3,2,2,2,4,3,3,4,2,2,3]}
 ];
 /* ===== CONFIG ===== */
 let COL,CAT,DIV,RAMP11,HEATRGB,PALACTIVE;
@@ -465,7 +468,7 @@ $('#sections').innerHTML=`
  <div class="card" style="margin-top:16px"><h3>Oportunidades identificadas para a IA</h3><p class="cap">até 3 por docente — % sobre o recorte</p><div class="chartbox tall"><canvas id="cOport"></canvas></div></div>
 </section>
 
-<section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 139 respostas</span></div>
+<section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 142 respostas</span></div>
  <div class="card"><h3>Frequência de uso por área de conhecimento</h3><p class="cap">cor = % dos docentes da linha naquela frequência · número = docentes · "uso freq." = semanal + diário</p>
   <div id="heat" class="heat"></div>
   <p class="cap" style="margin-top:12px" id="heatNote"></p></div>
@@ -503,7 +506,8 @@ $('#sections').innerHTML=`
    <blockquote class="qz">Resposta a revisores de periódicos, auxílio na melhoria de textos e análise estatística de pesquisa.<span>Ciências da Saúde</span></blockquote>
    <blockquote class="qz">Criação de projetos de pesquisa e mineração de dados.<span>Ciências Exatas e da Terra</span></blockquote>
    <blockquote class="qz">Facilita a revisão inicial, pelo professor, da estrutura textual de um trabalho acadêmico — erros gramaticais, tipografia e checagem das referências listadas.<span>Ciências da Saúde</span></blockquote>
-   <blockquote class="qz">Ajuda a pensar sobre assuntos de pesquisa e a encontrar referências novas.<span>Ciências Exatas e da Terra</span></blockquote></div>
+   <blockquote class="qz">Ajuda a pensar sobre assuntos de pesquisa e a encontrar referências novas.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">Agilidade: a IA faz em menos tempo o que eu mesmo poderia fazer.<span>Engenharias</span></blockquote></div>
   <div class="card"><h3>Casos concretos com alunos</h3><p class="cap">Quando a IA virou objeto de aprendizagem ativa e resolução real de problemas.</p>
    <blockquote class="qz">Uma aluna gerou, rápida e automaticamente, um estudo de insolação na volumetria de um prédio com ajuda do Claude; a partir daí comprovamos a adequação de um recuo lateral maior.<span>Ciências Exatas e da Terra</span></blockquote>
    <blockquote class="qz">Um aluno usou dados da própria empresa num trabalho de banco de dados, apresentou aos gestores e está propondo um artigo para o SIIEPE.<span>Ciências Exatas e da Terra</span></blockquote>
@@ -556,6 +560,7 @@ $('#sections').innerHTML=`
    <blockquote class="qz">Alunos que questionam fatos apresentados pelos professores e pelas bibliografias baseados em consultas a mecanismos de inteligência artificial generativa.<span>Ciências Exatas e da Terra</span></blockquote>
    <blockquote class="qz">Trabalho 100% gerado por IA; ao refazer a mesma atividade numa prova descritiva e sem consulta, o estudante travou.<span>Ciências Exatas e da Terra</span></blockquote>
    <blockquote class="qz">Entrega de trabalho feito por IA sem saber sustentá-lo oralmente.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">Alguns alunos acham que não precisam mais estudar, que a IA tem resposta pronta para tudo; quando troco o celular e o notebook por uma folha de papel, o resultado é uma folha em branco.<span>Engenharias</span></blockquote>
    <blockquote class="qz">Alunos exigem passar mesmo quando o uso total de IA é detectado, alegando que colegas passaram usando e não foram flagrados.<span>Ciências Exatas e da Terra</span></blockquote></div>
  </div>
  <div class="resumo"><h4>Em síntese</h4><p>O desafio dominante, de longe, é a terceirização do pensamento: alunos que entregam o que a IA produziu sem ler, entender ou se apropriar — de resumos e mapas mentais a interpretações de artigos na pós-graduação. Dele derivam os demais. Um segundo eixo são as alucinações e erros propagados: textos bem escritos, mas com referências inexistentes ou informação incorreta que o estudante não revisa. A fraude aparece em provas e atividades assíncronas — respostas idênticas às do ChatGPT, cópia até do que não tem relação com a matéria, turmas que burlam o bloqueio de internet — e já alcança a prova presencial, com uso do celular e idas ao banheiro para consultar a IA, quase sempre difícil de comprovar. A isso soma-se a queixa de isonomia: alunos flagrados exigem ser aprovados porque colegas usaram IA sem serem pegos. Voltam a pesar a dependência e o uso superficial, com prompts feitos de qualquer jeito que esvaziam o esforço cognitivo, e o despreparo e a erosão da autoridade: o aluno que não sustenta oralmente o que entregou, que trava ao refazer a tarefa sem consulta, e o uso da IA para contestar professores e bibliografia. As Engenharias trouxeram os relatos mais detalhados.</p></div>
@@ -568,6 +573,7 @@ $('#sections').innerHTML=`
    <blockquote class="qz">Pedi que o discente argumentasse oralmente sobre o trabalho apresentado.<span>Ciências Humanas</span></blockquote>
    <blockquote class="qz">Realizo seminários onde questiono o processo de raciocínio e peço que expliquem como usaram a IA — não adoto práticas punitivas.<span>Ciências Exatas e da Terra</span></blockquote>
    <blockquote class="qz">Em bancas de TCC e de mestrado, apresentei trechos que, embora bem escritos, não demonstravam coerência nem consistência científica.<span>Ciências Exatas e da Terra</span></blockquote>
+   <blockquote class="qz">Passei a pedir apresentações orais dos trabalhos, com peso maior que o texto escrito; como os trabalhos são supostamente feitos por IA, a nota escrita fica praticamente 10 para todos, mas vale menos.<span>Engenharias</span></blockquote>
    <blockquote class="qz">Marquei uma entrevista oral sobre o trabalho e a aluna não compareceu.<span>Ciências Humanas</span></blockquote></div>
   <div class="card"><h3>Reformular a tarefa e pedir refação</h3><p class="cap">Mudar o tema, corrigir por etapas ou aplicar uma nova avaliação diferente.</p>
    <blockquote class="qz">Pedi novamente o trabalho e alterei o assunto, corrigindo por partes, obrigando o aluno a pensar no que estava escrito.<span>Engenharias</span></blockquote>
