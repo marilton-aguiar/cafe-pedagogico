@@ -148,7 +148,7 @@ footer b{color:var(--ink2)}
   </div>
   <p class="sub">Painel interativo de análise do questionário conduzido pelo Grupo de Interlocução Pedagógica (GIP). Explore os dados por área, tempo de docência e atuação; todos os gráficos se atualizam com os filtros.</p>
   <div class="ctx">
-    <span class="pill">192 respostas</span>
+    <span class="pill">194 respostas</span>
     <span class="pill">8 seções · 19 afirmações em escala</span>
     <span class="pill">Respostas anônimas · análise agregada</span>
     <span class="pill">Coleta: 04/09–06/10/2026</span>
@@ -156,8 +156,8 @@ footer b{color:var(--ink2)}
   <div class="moe" id="moeBox">
     <div class="moe-h">Precisão amostral</div>
     <div class="moe-row"><span>Nível de confiança</span><b>95%</b></div>
-    <div class="moe-row err"><span>Margem de erro</span><b id="moeVal">±6,6%</b></div>
-    <div class="moe-f">n = <b id="moeN">192</b> de 1.403 docentes da UFPel · pior caso (p = 0,5) · com correção para população finita</div>
+    <div class="moe-row err"><span>Margem de erro</span><b id="moeVal">±6,5%</b></div>
+    <div class="moe-f">n = <b id="moeN">194</b> de 1.403 docentes da UFPel · pior caso (p = 0,5) · com correção para população finita</div>
   </div>
 </header>
 </div>
@@ -171,7 +171,7 @@ footer b{color:var(--ink2)}
       <button id="clear">Limpar filtros</button>
       <button id="palToggle" title="Alternar paleta de cores">Paleta: UFPel</button>
       <button id="secToggle" title="Recolher ou expandir todas as seções">Expandir seções</button>
-      <div class="nresult">Analisando <b id="nBig">192</b> de 192 respostas</div>
+      <div class="nresult">Analisando <b id="nBig">194</b> de 194 respostas</div>
     </div>
   </div>
 </div>
@@ -180,7 +180,7 @@ footer b{color:var(--ink2)}
   <div class="kpis" id="kpis"></div>
   <div id="sections"></div>
   <footer>
-    <b>Metodologia.</b> Questionário de autopreenchimento (Google Formulários), 192 respostas anônimas de docentes da UFPel, entre 04/09 e 06/10/2026. Percentuais calculados sobre o total de respondentes de cada recorte; questões de múltipla escolha somam mais de 100%. Escalas de concordância de 1 (discordo totalmente) a 5 (concordo totalmente); "Discordam" agrupa 1–2 e "Concordam" agrupa 4–5. Áreas com grafia livre foram normalizadas para a classificação padrão.<br><br>
+    <b>Metodologia.</b> Questionário de autopreenchimento (Google Formulários), 194 respostas anônimas de docentes da UFPel, entre 04/09 e 06/10/2026. Percentuais calculados sobre o total de respondentes de cada recorte; questões de múltipla escolha somam mais de 100%. Escalas de concordância de 1 (discordo totalmente) a 5 (concordo totalmente); "Discordam" agrupa 1–2 e "Concordam" agrupa 4–5. Áreas com grafia livre foram normalizadas para a classificação padrão.<br><br>
     Elaborado com Dia · para subsidiar as discussões do Café Pedagógico.
   </footer>
 </div>
@@ -384,7 +384,9 @@ const R=[
 {ar:"Multidisciplinar",tp:"11–20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Gemini","Grammarly","Consensus"],fi:["Pesquisa","Produção de material didático"],cf:3,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Resumos/resenhas"],po:"Sim, informal",ap:2,pr:4,op:["Personalização de conteúdo","Apoio à pesquisa"],avl:["Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:4,fp:"não",es:["Arguição oral","Avaliação presencial controlada"],lk:[4,4,4,4,3,1,1,5,4,3,1,1,4,4,5,5,4,2,2]},
 {lw:1,ar:"Multidisciplinar",tp:">20 anos",at:"graduação",fu:"mensalmente",fe:["ChatGPT","Claude","Gemini"],fi:["Preparação de aulas","Pesquisa","Produção de material didático"],cf:3,fo:"Sim, por conta própria",fa:4,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, informal",ap:1,pr:5,op:["Apoio à pesquisa","Desenvolvimento profissional docente","Pensamento crítico e letramento em IA"],avl:["Métodos alternativos (presencial/oral)"],ps:"sim",ad:5,fp:"não",es:["Detector de IA","Comparação com histórico","Rascunhos/etapas"],lk:[2,2,5,4,2,3,1,5,5,4,1,1,2,3,3,5,5,1,4]},
 {ar:"Ciências Biológicas",tp:">20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Gemini Notebook","Perplexity"],fi:["Pesquisa","Comunicação administrativa"],cf:4,fo:"Sim, por conta própria",fa:4,av:["Resolução de exercícios","Trabalhos teóricos","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:4,pr:5,op:["Produtividade","Redução de carga administrativa","Feedback imediato"],avl:["Ajustei os critérios"],ps:"sim",ad:5,fp:"não",es:["Comparação com histórico","Avaliação presencial controlada","Reflexão do estudante"],lk:[1,5,3,3,2,3,2,4,2,2,2,2,5,2,2,4,4,3,1]},
-{ar:"Ciências da Saúde",tp:"11–20 anos",at:"graduação",fu:"raramente",fe:["Gemini"],fi:["Pesquisa"],cf:1,fo:"Não",fa:3,av:["Resolução de exercícios","Trabalhos teóricos"],po:"Ainda não, pretendo definir",ap:2,pr:3,op:["Criatividade e inovação didática","Desenvolvimento profissional docente","Pensamento crítico e letramento em IA"],avl:["Ainda não defini abordagem"],ps:"sim",ad:0,fp:"não tenho certeza",es:["Avaliação presencial controlada","Reflexão do estudante"],lk:[5,5,5,5,2,1,1,5,5,5,2,1,4,2,2,4,3,2,4]}
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"graduação",fu:"raramente",fe:["Gemini"],fi:["Pesquisa"],cf:1,fo:"Não",fa:3,av:["Resolução de exercícios","Trabalhos teóricos"],po:"Ainda não, pretendo definir",ap:2,pr:3,op:["Criatividade e inovação didática","Desenvolvimento profissional docente","Pensamento crítico e letramento em IA"],avl:["Ainda não defini abordagem"],ps:"sim",ad:0,fp:"não tenho certeza",es:["Avaliação presencial controlada","Reflexão do estudante"],lk:[5,5,5,5,2,1,1,5,5,5,2,1,4,2,2,4,3,2,4]},
+{ar:"Ciências Humanas",tp:"11–20 anos",at:"ambos",fu:"raramente",fe:["ChatGPT"],fi:["Correção"],cf:4,fo:"Não",fa:4,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Ainda não, pretendo definir",ap:2,pr:3,op:["Personalização de conteúdo","Acessibilidade","Pensamento crítico e letramento em IA"],avl:["Mantenho os critérios anteriores"],ps:"sim",ad:4,fp:"não",es:["Detector de IA","Comparação com histórico"],lk:[4,5,5,5,4,2,2,2,3,2,3,4,2,5,4,5,4,2,2]},
+{ar:"Ciências Agrárias",tp:">20 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Gemini","Microsoft Copilot"],fi:["Preparação de aulas","Pesquisa","Produção de material didático"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, informal",ap:3,pr:4,op:["Produtividade","Apoio à pesquisa"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"parcialmente",ad:2,fp:"não",es:["Detector de IA","Volta a presenciais/manuscritas"],lk:[2,5,5,5,5,1,1,5,5,5,1,1,5,1,1,5,1,1,1]}
 ];
 /* ===== CONFIG ===== */
 let COL,CAT,DIV,RAMP11,HEATRGB,PALACTIVE;
@@ -518,7 +520,7 @@ $('#sections').innerHTML=`
  <div class="card" style="margin-top:16px"><h3>Oportunidades identificadas para a IA</h3><p class="cap">até 3 por docente · % sobre o recorte</p><div class="chartbox tall"><canvas id="cOport"></canvas></div></div>
 </section>
 
-<section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 192 respostas</span></div>
+<section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 194 respostas</span></div>
  <div class="card"><h3>Frequência de uso por área de conhecimento</h3><p class="cap">cor = % dos docentes da linha naquela frequência · número = docentes · "uso freq." = semanal + diário</p>
   <div id="heat" class="heat"></div>
   <p class="cap" style="margin-top:12px" id="heatNote"></p></div>
@@ -751,12 +753,14 @@ $('#sections').innerHTML=`
    <blockquote class="qz">Como proceder e qual a conduta quando há suspeita de trabalhos feitos com IA.<span>Ciências Agrárias</span></blockquote>
    <blockquote class="qz">Ter acesso a metodologias para avaliar o conhecimento real que os alunos vêm adquirindo com o uso da IA.<span>Ciências da Saúde</span></blockquote>
    <blockquote class="qz">Como aplicar provas em ambiente seguro, sem eletrônicos e com as idas ao banheiro controladas; e como avaliar quando o aluno não consegue responder sobre o próprio trabalho.<span>Ciências Exatas e da Terra</span></blockquote>
-   <blockquote class="qz">Como criar métodos para identificar com precisão e avaliar o uso de IA na redação de TCCs?<span>Ciências Sociais Aplicadas</span></blockquote></div>
+   <blockquote class="qz">Como criar métodos para identificar com precisão e avaliar o uso de IA na redação de TCCs?<span>Ciências Sociais Aplicadas</span></blockquote>
+   <blockquote class="qz">O acesso livre à IA pode aumentar a disparidade entre alunos: quem domina mais os recursos, e tem equipamentos melhores, leva vantagem. Talvez especificar quais programas seriam permitidos.<span>Ciências Agrárias</span></blockquote></div>
   <div class="card"><h3>Limites, ética e regulação</h3><p class="cap">Do uso ético em sala à regulação das plataformas e big techs.</p>
    <blockquote class="qz">Limites éticos nas relações sociotécnicas; defesa da soberania digital e regulação das plataformas e big techs.<span>Ciências Humanas</span></blockquote>
    <blockquote class="qz">Como delimitar o uso de IA, assumindo que ele é praticamente garantido.<span>Ciências Sociais Aplicadas</span></blockquote>
    <blockquote class="qz">Limites éticos do uso de IA, com foco na preservação da formação técnica, científica e metodológica dos alunos.<span>Ciências Agrárias</span></blockquote>
-   <blockquote class="qz">Até onde podemos chegar no processo de ensino e aprendizagem? Onde está o limite?<span>Ciências da Saúde</span></blockquote></div>
+   <blockquote class="qz">Até onde podemos chegar no processo de ensino e aprendizagem? Onde está o limite?<span>Ciências da Saúde</span></blockquote>
+   <blockquote class="qz">Falta respaldo institucional: um protocolo de uso e de ação em caso de detecção, e um software de detecção potente fornecido pela universidade.<span>Ciências Humanas</span></blockquote></div>
   <div class="card"><h3>O papel do professor e as competências</h3><p class="cap">De transmissor a acompanhador e o que ensinar num mundo pós-IA.</p>
    <blockquote class="qz">A passagem de uma posição de professor para a de acompanhador da produção; como privilegiar a aprendizagem em vez da transmissão de conteúdos.<span>Ciências Humanas</span></blockquote>
    <blockquote class="qz">Quais serão as competências necessárias em um mundo pós-IA.<span>Ciências Sociais Aplicadas</span></blockquote>
@@ -1071,6 +1075,8 @@ OPENTEXT+=`Uso para criar imagens explicativas da metodologia. Construção de a
 OPENTEXT+=`Preparação de imagens e infográficos do conteúdo, após boa conferência. Um orientando entregou uma versão de TCC com mais de 90% de uso de IA. Solicitei a reescrita do TCC para encaminhar à banca, após conversar e informar a detecção do plágio. Relacionar a teoria com trabalhos de resolução de problemas em sala. Como estimular o aluno a pensar numa fase de emburrecimento coletivo, e que profissionais as universidades estão formando. `;
 OPENTEXT+=`Agilidade em elaborar respostas com qualidade de escrita e de pensamento. Já tive respostas erradas em perguntas que fiz. Acho difícil avaliar, mas isso não inviabiliza o uso: se o conteúdo gerado precisa ser apresentado e discutido depois em aula, exige que o estudante se aposse da informação. Os alunos estão aprendendo mais com a IA do que na sala; como trazer a ferramenta para somar às aulas e não competir. `;
 OPENTEXT+=`Meu aluno de TCC usou a IA para elaborar uma ferramenta de coleta de dados da pesquisa. Discentes usaram IA para resolver exercícios de cálculo em atividade avaliativa. Avaliação presencial com ambiente controlado e pedido de reflexão sobre o próprio processo. Qualquer discussão a respeito será válida. `;
+OPENTEXT+=`Geração de imagens ilustrativas para uma aula ou palestra. O aluno apresenta um trabalho feito pela IA. O feedback sinalizou a presença de IA e pedi ao estudante refazer o trabalho com a própria autoria. Falta respaldo institucional: protocolo de uso, ação em caso de detecção e um software de detecção potente da universidade. Quais são as diretrizes institucionais sobre o tema? `;
+OPENTEXT+=`Auxílio na busca de informações mais detalhadas. Avaliação de análises críticas elaboradas por estudantes. Numa análise crítica de palestra, pelos termos usados percebi que não fora escrita sem IA; confirmei com programas de detecção, conversei com o estudante e pedi refação com as próprias palavras. O acesso livre à IA pode aumentar a disparidade entre alunos, pois quem domina mais os recursos e tem equipamentos melhores leva vantagem; talvez especificar quais programas seriam permitidos. Receber informações sobre como usar a IA como ferramenta de apoio em sala, tornando a aula mais dinâmica e interativa. `;
 function apply(){const rows=subset();renderKPIs(rows);renderCharts(rows);}
 function init(){
  opts($('#fArea'),'ar',null);opts($('#fTempo'),'tp',ORD.tempo);opts($('#fAtua'),'at',null);
