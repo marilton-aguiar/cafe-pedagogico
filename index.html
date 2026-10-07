@@ -148,7 +148,7 @@ footer b{color:var(--ink2)}
   </div>
   <p class="sub">Painel interativo de análise do questionário conduzido pelo Grupo de Interlocução Pedagógica (GIP). Explore os dados por área, tempo de docência e atuação; todos os gráficos se atualizam com os filtros.</p>
   <div class="ctx">
-    <span class="pill">202 respostas</span>
+    <span class="pill">203 respostas</span>
     <span class="pill">8 seções · 19 afirmações em escala</span>
     <span class="pill">Respostas anônimas · análise agregada</span>
     <span class="pill">Coleta: 04/09–07/10/2026</span>
@@ -157,7 +157,7 @@ footer b{color:var(--ink2)}
     <div class="moe-h">Precisão amostral</div>
     <div class="moe-row"><span>Nível de confiança</span><b>95%</b></div>
     <div class="moe-row err"><span>Margem de erro</span><b id="moeVal">±6,4%</b></div>
-    <div class="moe-f">n = <b id="moeN">202</b> de 1.403 docentes da UFPel · pior caso (p = 0,5) · com correção para população finita</div>
+    <div class="moe-f">n = <b id="moeN">203</b> de 1.403 docentes da UFPel · pior caso (p = 0,5) · com correção para população finita</div>
   </div>
 </header>
 </div>
@@ -171,7 +171,7 @@ footer b{color:var(--ink2)}
       <button id="clear">Limpar filtros</button>
       <button id="palToggle" title="Alternar paleta de cores">Paleta: UFPel</button>
       <button id="secToggle" title="Recolher ou expandir todas as seções">Expandir seções</button>
-      <div class="nresult">Analisando <b id="nBig">202</b> de 202 respostas</div>
+      <div class="nresult">Analisando <b id="nBig">203</b> de 203 respostas</div>
     </div>
   </div>
 </div>
@@ -180,7 +180,7 @@ footer b{color:var(--ink2)}
   <div class="kpis" id="kpis"></div>
   <div id="sections"></div>
   <footer>
-    <b>Metodologia.</b> Questionário de autopreenchimento (Google Formulários), 202 respostas anônimas de docentes da UFPel, entre 04/09 e 07/10/2026. Percentuais calculados sobre o total de respondentes de cada recorte; questões de múltipla escolha somam mais de 100%. Escalas de concordância de 1 (discordo totalmente) a 5 (concordo totalmente); "Discordam" agrupa 1–2 e "Concordam" agrupa 4–5. Áreas com grafia livre foram normalizadas para a classificação padrão.<br><br>
+    <b>Metodologia.</b> Questionário de autopreenchimento (Google Formulários), 203 respostas anônimas de docentes da UFPel, entre 04/09 e 07/10/2026. Percentuais calculados sobre o total de respondentes de cada recorte; questões de múltipla escolha somam mais de 100%. Escalas de concordância de 1 (discordo totalmente) a 5 (concordo totalmente); "Discordam" agrupa 1–2 e "Concordam" agrupa 4–5. Áreas com grafia livre foram normalizadas para a classificação padrão.<br><br>
     Elaborado com Dia · para subsidiar as discussões do Café Pedagógico.
   </footer>
 </div>
@@ -394,7 +394,8 @@ const R=[
 {ar:"Ciências Exatas e da Terra",tp:"2–5 anos",at:"graduação",fu:"diariamente",fe:["ChatGPT","Gemini","Gemini Notebook","Grammarly"],fi:["Preparação de aulas","Elaboração de avaliações","Correção","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Sim, pela instituição",fa:5,av:["Provas","Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações","Códigos","Resumos/resenhas"],po:"Sim, informal",ap:2,pr:5,op:["Feedback imediato","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Ajustei os critérios"],ps:"sim",ad:2,fp:"não",es:["Comparação com histórico","Rascunhos/etapas"],lk:[5,5,5,5,4,1,1,5,3,1,1,1,5,5,5,5,5,1,1]},
 {ar:"Ciências Humanas",tp:"<2 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini","Gemini Notebook","Grammarly"],fi:["Preparação de aulas","Correção","Pesquisa","Produção de material didático"],cf:4,fo:"Sim, por conta própria",fa:5,av:["Resolução de exercícios","Trabalhos teóricos","Redações","Resumos/resenhas"],po:"Sim, formalizada",ap:5,pr:5,op:["Personalização de conteúdo","Apoio à identificação de dificuldades","Pensamento crítico e letramento em IA"],avl:["Ajustei os critérios"],ps:"sim",ad:8,fp:"sim",es:["Avaliação presencial controlada","Rascunhos/etapas","Reflexão do estudante"],lk:[2,2,3,3,1,1,4,2,2,2,1,4,1,5,5,5,5,1,1]},
 {ar:"Ciências Exatas e da Terra",tp:"11–20 anos",at:"ambos",fu:"diariamente",fe:["ChatGPT","Gemini"],fi:["Preparação de aulas","Elaboração de avaliações","Pesquisa","Produção de material didático","Outro"],cf:5,fo:"Não",fa:5,av:["Resolução de exercícios","Trabalhos teóricos","Resumos/resenhas"],po:"Sim, informal",ap:3,pr:5,op:["Produtividade","Apoio à pesquisa","Pensamento crítico e letramento em IA"],avl:["Ajustei os critérios","Métodos alternativos (presencial/oral)"],ps:"sim",ad:8,fp:"não tenho certeza",es:["Arguição oral","Reflexão do estudante","Outro"],lk:[2,2,2,4,1,4,4,2,1,1,2,4,1,4,3,4,5,1,1]},
-{ar:"Ciências Agrárias",tp:"6–10 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","Perplexity","Grammarly"],fi:["Preparação de aulas","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Não",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações"],po:"Ainda não, pretendo definir",ap:3,pr:4,op:["Produtividade","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Ainda não defini abordagem"],ps:"não",ad:2,fp:"não tenho certeza",es:["Nenhuma estratégia específica"],lk:[3,4,5,5,5,1,1,1,2,5,2,2,3,3,5,5,3,1,3]}
+{ar:"Ciências Agrárias",tp:"6–10 anos",at:"ambos",fu:"semanalmente",fe:["ChatGPT","Claude","Gemini","Gemini Notebook","Perplexity","Grammarly"],fi:["Preparação de aulas","Pesquisa","Produção de material didático","Comunicação administrativa"],cf:3,fo:"Não",fa:5,av:["Resolução de exercícios","Trabalhos práticos","Trabalhos teóricos","Redações"],po:"Ainda não, pretendo definir",ap:3,pr:4,op:["Produtividade","Criatividade e inovação didática","Apoio à pesquisa"],avl:["Ainda não defini abordagem"],ps:"não",ad:2,fp:"não tenho certeza",es:["Nenhuma estratégia específica"],lk:[3,4,5,5,5,1,1,1,2,5,2,2,3,3,5,5,3,1,3]},
+{ar:"Ciências da Saúde",tp:"11–20 anos",at:"ambos",fu:"raramente",fe:["ChatGPT","Gemini","Gemini Notebook","Perplexity"],fi:["Correção"],cf:3,fo:"Sim, por conta própria",fa:3,av:["Trabalhos teóricos"],po:"Não",ap:1,pr:3,op:["Personalização de conteúdo","Produtividade","Criatividade e inovação didática"],avl:["Ainda não defini abordagem"],ps:"não",ad:0,fp:"não",es:["Nenhuma estratégia específica"],lk:[5,5,4,3,2,1,1,5,5,3,1,1,1,1,3,5,3,5,3]}
 ];
 /* ===== CONFIG ===== */
 let COL,CAT,DIV,RAMP11,HEATRGB,PALACTIVE;
@@ -528,7 +529,7 @@ $('#sections').innerHTML=`
  <div class="card" style="margin-top:16px"><h3>Oportunidades identificadas para a IA</h3><p class="cap">até 3 por docente · % sobre o recorte</p><div class="chartbox tall"><canvas id="cOport"></canvas></div></div>
 </section>
 
-<section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 202 respostas</span></div>
+<section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 203 respostas</span></div>
  <div class="card"><h3>Frequência de uso por área de conhecimento</h3><p class="cap">cor = % dos docentes da linha naquela frequência · número = docentes · "uso freq." = semanal + diário</p>
   <div id="heat" class="heat"></div>
   <p class="cap" style="margin-top:12px" id="heatNote"></p></div>
@@ -1096,6 +1097,7 @@ OPENTEXT+=`O tipo de exercícios e avaliações que uso dificulta o uso de IA, a
 OPENTEXT+=`Dois alunos autistas vieram agradecer: só conseguem prestar atenção com as ilustrações e mapas mentais feitos com IA nos slides. Um aluno com transtorno de fluência da fala decidiu falar em sala, ele que vivia isolado dos colegas. Alunos prestes a se formar disseram que foi a primeira disciplina em que sentaram na frente e quiseram falar, e que entenderam autores clássicos pela primeira vez. A geração atual precisa de conteúdo contextualizado, e a IA bem usada ajuda nisso. Alunos de cursos externos entregaram o trabalho final todos com a mesma proposta; aceitei e devolvi a cada um um retorno sobre uso responsável da IA como ferramenta que exige mediação humana. Primeiro declarar o uso da IA; segundo, se estiver mal feito, pedir os prompts; terceiro, no lugar de reprovar, orientar o uso adequado. Precisamos de um manual orientador de uso de IA da própria UFPel, com regras claras para docentes e discentes. `;
 OPENTEXT+=`Pedi aos estudantes que usassem IA para fazer cálculos e refletir sobre as respostas; as primeiras reflexões foram superficiais. Um grupo passou a questionar criticamente a ferramenta e entregou toda a conversa; depois, uma das alunas argumentou com fundamentação matemática precisa usando elementos daquela conversa, a primeira vez em anos que vi alguém discutir aquele problema com tanta desenvoltura. Eu percebia o uso pelo padrão de escrita, mesmo manuscrito, e me sentia compelida a avaliar ao menos parcialmente; por isso sempre incluí participação em aula, pois quando o discurso não bate com o relatório dá para reduzir a nota. Avaliações formativas, mini seminários e debates entre estudantes podem ser espaço de aprendizagem e de avaliação, integrando a IA como instrumento potente. `;
 OPENTEXT+=`Trabalho de desenvolvimento de vídeo. Trabalhos escritos: não passo mais esse tipo de atividade para os alunos. `;
+OPENTEXT+=`A IA melhorou a qualidade de redação e a ortografia dos estudantes. O desafio é não saber se foi o aluno ou a IA quem escreveu o texto. Precisaria de um software de apoio à avaliação, pago pela universidade para os professores, pois já pagamos muita coisa do próprio bolso. Queria uma capacitação prática: que a universidade ensinasse a usar e custeasse o sistema. `;
 function apply(){const rows=subset();renderKPIs(rows);renderCharts(rows);}
 function init(){
  opts($('#fArea'),'ar',null);opts($('#fTempo'),'tp',ORD.tempo);opts($('#fAtua'),'at',null);
