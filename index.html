@@ -124,6 +124,9 @@ section.block.collapsed > :not(.blockhead){display:none}
 .cloud .cw{font-family:'Figtree','Avenir Next','Segoe UI',system-ui,sans-serif;cursor:default;transition:opacity .15s;letter-spacing:-.01em}
 .cloud .cw:hover{opacity:1!important}
 .heat.h3 .hrow{grid-template-columns:240px repeat(3,minmax(90px,1fr)) 56px 92px;min-width:560px}
+.heat.h6 .hrow{grid-template-columns:150px repeat(6,minmax(58px,1fr)) 46px;min-width:730px}
+.intent{font-size:13px;color:var(--ink2);line-height:1.45;margin:0 0 8px}
+.cap.conc{border-left:3px solid var(--teal);padding-left:10px}
 footer{border-top:1px solid var(--line);padding:28px 0 10px;font-size:13px;color:var(--muted);margin-top:10px}
 footer b{color:var(--ink2)}
 @media(max-width:900px){
@@ -533,21 +536,39 @@ $('#sections').innerHTML=`
 </section>
 
 <section class="block"><div class="blockhead"><span class="num">06</span><h2>Cruzamentos com a frequência de uso</h2><span class="note">todas as 206 respostas</span></div>
- <div class="card"><h3>Frequência de uso por área de conhecimento</h3><p class="cap">cor = % dos docentes da linha naquela frequência · número = docentes · "uso freq." = semanal + diário</p>
+ <div class="card"><h3>Frequência de uso por área de conhecimento</h3><p class="intent"><b>O que analisa:</b> em quais áreas o uso de IA pelos docentes já é rotina e em quais ainda é raro.</p><p class="cap">cor = % dos docentes da linha naquela frequência · número = docentes · "uso freq." = semanal + diário</p>
   <div id="heat" class="heat"></div>
-  <p class="cap" style="margin-top:12px" id="heatNote"></p></div>
- <div class="card" style="margin-top:16px"><h3>Frequência de uso por tempo de docência</h3><p class="cap">mesma leitura, agrupando por anos de carreira</p>
+  <p class="cap conc" style="margin-top:12px" id="heatNote"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Frequência de uso por tempo de docência</h3><p class="intent"><b>O que analisa:</b> se o tempo de carreira muda a adesão à IA no dia a dia docente.</p><p class="cap">mesma leitura, agrupando por anos de carreira</p>
   <div id="heatT" class="heat"></div>
-  <p class="cap" style="margin-top:12px" id="heatNoteT"></p></div>
- <div class="card" style="margin-top:16px"><h3>Política de uso × frequência de IA percebida nos alunos</h3><p class="cap">linhas = política na disciplina · colunas = frequência percebida (1 = &lt;10% · 5 = &gt;90% dos trabalhos) · "alto" = níveis 4–5</p>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteT"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Política de uso × frequência de IA percebida nos alunos</h3><p class="intent"><b>O que analisa:</b> se definir uma política na disciplina acompanha uma percepção maior ou menor de uso pelos alunos.</p><p class="cap">linhas = política na disciplina · colunas = frequência percebida (1 = &lt;10% · 5 = &gt;90% dos trabalhos) · "alto" = níveis 4–5</p>
   <div id="heatP" class="heat"></div>
-  <p class="cap" style="margin-top:12px" id="heatNoteP"></p></div>
- <div class="card" style="margin-top:16px"><h3>Frequência de uso × efeito na produtividade docente</h3><p class="cap">linhas = frequência com que o docente usa IA · colunas = efeito percebido na produtividade (1 = muito negativo · 5 = muito positivo) · "positivo" = níveis 4–5</p>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteP"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Frequência de uso × efeito na produtividade docente</h3><p class="intent"><b>O que analisa:</b> se quem usa mais IA percebe mais ganho de produtividade no próprio trabalho.</p><p class="cap">linhas = frequência com que o docente usa IA · colunas = efeito percebido na produtividade (1 = muito negativo · 5 = muito positivo) · "positivo" = níveis 4–5</p>
   <div id="heatFP" class="heat"></div>
-  <p class="cap" style="margin-top:12px" id="heatNoteFP"></p></div>
- <div class="card" style="margin-top:16px"><h3>Estratégias de avaliação × adaptação da avaliação</h3><p class="cap">linhas = estratégias usadas (múltipla escolha; um docente pode aparecer em várias) · colunas = faixa de adaptação da avaliação à IA · métrica = média (0–10)</p>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteFP"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Estratégias de avaliação × adaptação da avaliação</h3><p class="intent"><b>O que analisa:</b> quais estratégias de avaliação acompanham uma sensação maior de avaliação já adaptada à IA.</p><p class="cap">linhas = estratégias usadas (múltipla escolha; um docente pode aparecer em várias) · colunas = faixa de adaptação da avaliação à IA · métrica = média (0–10)</p>
   <div id="heatEA" class="heat h3"></div>
-  <p class="cap" style="margin-top:12px" id="heatNoteEA"></p></div>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteEA"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Formação recebida × insegurança profissional</h3><p class="intent"><b>O que analisa:</b> se a capacitação, sobretudo a institucional, se associa a menos insegurança diante do avanço da IA.</p><p class="cap">linhas = formação/capacitação recebida · colunas = concordância com "sinto insegurança profissional" (1 = discordo · 5 = concordo) · métrica = % que concordam (4–5)</p>
+  <div id="heatC1" class="heat"></div>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteC1"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Atuação × dificuldade de avaliar a autoria</h3><p class="intent"><b>O que analisa:</b> se o desafio de identificar a autoria pesa mais sobre quem atua na pós, onde estão TCC, dissertação e tese.</p><p class="cap">linhas = nível em que atua · colunas = concordância com "a IA tornou mais difícil avaliar a autoria real" (1–5) · métrica = % que concordam (4–5)</p>
+  <div id="heatC2" class="heat"></div>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteC2"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Frequência de uso docente × desconfiança no conteúdo</h3><p class="intent"><b>O que analisa:</b> se usar IA com mais frequência deixa o docente mais crítico ou mais complacente quanto à precisão do que a ferramenta gera.</p><p class="cap">linhas = frequência com que o docente usa IA · colunas = concordância com "não confio plenamente na precisão do conteúdo gerado" (1–5) · métrica = % que concordam (4–5)</p>
+  <div id="heatC3" class="heat"></div>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteC3"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Política de uso × segurança para decidir diante de suspeita</h3><p class="intent"><b>O que analisa:</b> se ter uma política combinada com a turma se associa a mais segurança para tomar decisões diante de suspeita de uso.</p><p class="cap">linhas = política de uso na disciplina · colunas = concordância com "sinto-me seguro para decidir diante de suspeita" (1–5) · métrica = % que concordam (4–5)</p>
+  <div id="heatC4" class="heat"></div>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteC4"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Clareza das regras × segurança para decidir</h3><p class="intent"><b>O que analisa:</b> se quem percebe regras claras na instituição se sente mais seguro para agir, testando a hipótese de que a falta de diretrizes alimenta a inação.</p><p class="cap">linhas = concordância com "sei o que é permitido ou proibido" (agrupada) · colunas = concordância com "sinto-me seguro para decidir" (1–5) · métrica = % que concordam (4–5)</p>
+  <div id="heatC5" class="heat"></div>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteC5"></p></div>
+ <div class="card" style="margin-top:16px"><h3>Grande área × oportunidades mais citadas</h3><p class="intent"><b>O que analisa:</b> se cada grande área enxerga oportunidades distintas na IA, para orientar trilhas específicas no evento.</p><p class="cap">linhas = grande área · colunas = seis oportunidades mais citadas · número = docentes da área que marcaram · cor = % da área (múltipla escolha)</p>
+  <div id="heatC6" class="heat h6"></div>
+  <p class="cap conc" style="margin-top:12px" id="heatNoteC6"></p></div>
 </section>
 
 <section class="block"><div class="blockhead"><span class="num">07</span><h2>Concordância com afirmações sobre IA</h2><span class="note">19 afirmações · agrupadas por tema</span></div>
@@ -948,7 +969,7 @@ function heatMatrix(mountId,noteId,key,headLabel,rowOrder,totLabel){
  document.getElementById(mountId).innerHTML=head+body+totrow;
  const stats=labels.map(a=>{const ar=R.filter(r=>r[key]===a);return{a,n:ar.length,uf:pct(ar.filter(r=>r.fu==='semanalmente'||r.fu==='diariamente').length,ar.length)};}).filter(s=>s.n>=3).sort((x,y)=>y.uf-x.uf);
  const hi=stats[0],lo=stats[stats.length-1];
- document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`Maior taxa de uso semanal ou diário: <b>${hi.a}</b> (${hi.uf}%). Menor: <b>${lo.a}</b> (${lo.uf}%). Grupos com menos de 3 respostas ficam de fora dessa leitura.`:'';
+ document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`<b>Conclusão:</b> maior taxa de uso semanal ou diário em <b>${hi.a}</b> (${hi.uf}%) e menor em <b>${lo.a}</b> (${lo.uf}%). Grupos com menos de 3 respostas ficam de fora dessa leitura.`:'';
 }
 function renderCross(){
  heatMatrix('heat','heatNote','ar','Área',null,'Todas as áreas');
@@ -956,6 +977,12 @@ function renderCross(){
  heatScale('heatP','heatNoteP','po',ORD.pol,'fa','Política de uso','Todas','alto (4–5)','A percepção de uso alto (4–5) pelos alunos');
  heatScale('heatFP','heatNoteFP','fu',ORD.freq,'pr','Frequência de uso','Todas','positivo (4–5)','O efeito positivo na produtividade (4–5)');
  heatMulti('heatEA','heatNoteEA','es','ad','Estratégia de avaliação','média (0–10)','Adaptação da avaliação (0–10)');
+ heatLk('heatC1','heatNoteC1','fo',ORD.form,8,'Formação recebida','Todas','A concordância com "sinto insegurança profissional"');
+ heatLk('heatC2','heatNoteC2','at',['graduação','pós-graduação','ambos'],1,'Atuação','Todas','A dificuldade percebida de avaliar a autoria');
+ heatLk('heatC3','heatNoteC3','fu',ORD.freq,3,'Frequência de uso','Todas','A desconfiança quanto à precisão do conteúdo');
+ heatLk('heatC4','heatNoteC4','po',ORD.pol,5,'Política de uso','Todas','A segurança para decidir diante de suspeita');
+ heatLkLk('heatC5','heatNoteC5',11,5,'Clareza das regras','A segurança para decidir');
+ heatCatMulti('heatC6','heatNoteC6','ar','op',6,'Grande área','Todas as áreas');
 }
 /* linhas em múltipla escolha × faixa de uma escala numérica (ex.: estratégias × adaptação 0–10) */
 function heatMulti(mountId,noteId,multiKey,scaleKey,headLabel,metricLabel,hiDesc){
@@ -974,7 +1001,7 @@ function heatMulti(mountId,noteId,multiKey,scaleKey,headLabel,metricLabel,hiDesc
  document.getElementById(mountId).innerHTML=head+body+totrow;
  const stats=labels.map(l=>{const vv=R.filter(r=>(r[multiKey]||[]).includes(l)&&r[scaleKey]!=null);return{l,n:vv.length,m:vv.length?vv.reduce((a,r)=>a+r[scaleKey],0)/vv.length:0};}).filter(s=>s.n>=3).sort((a,b)=>b.m-a.m);
  const hi=stats[0],lo=stats[stats.length-1];
- document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`${hiDesc}: maior média entre quem usa "<b>${hi.l}</b>" (${hi.m.toFixed(1)}/10) e menor entre "<b>${lo.l}</b>" (${lo.m.toFixed(1)}/10). Como é múltipla escolha, um docente entra em várias linhas; estratégias com menos de 3 respostas ficam de fora.`:'';
+ document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`<b>Conclusão:</b> ${hiDesc}: maior média entre quem usa "<b>${hi.l}</b>" (${hi.m.toFixed(1)}/10) e menor entre "<b>${lo.l}</b>" (${lo.m.toFixed(1)}/10). Como é múltipla escolha, um docente entra em várias linhas; estratégias com menos de 3 respostas ficam de fora.`:'';
 }
 /* linhas categóricas × coluna em escala 1–5 (ex.: política × frequência percebida) */
 function heatScale(mountId,noteId,rowKey,rowOrder,scaleKey,headLabel,totLabel,metricLabel,hiDesc){
@@ -993,9 +1020,68 @@ function heatScale(mountId,noteId,rowKey,rowOrder,scaleKey,headLabel,totLabel,me
  document.getElementById(mountId).innerHTML=head+body+totrow;
  const stats=labels.map(a=>{const rr=R.filter(r=>r[rowKey]===a&&r[scaleKey]!=null);return{a,n:rr.length,hi:pct(rr.filter(r=>r[scaleKey]>=4).length,rr.length)};}).filter(s=>s.n>=3).sort((x,y)=>y.hi-x.hi);
  const hi=stats[0],lo=stats[stats.length-1];
- document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`${hiDesc} é maior entre "<b>${hi.a}</b>" (${hi.hi}%) e menor entre "<b>${lo.a}</b>" (${lo.hi}%). Grupos com menos de 3 respostas ficam de fora dessa leitura.`:'';
+ document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`<b>Conclusão:</b> ${hiDesc} é maior entre "<b>${hi.a}</b>" (${hi.hi}%) e menor entre "<b>${lo.a}</b>" (${lo.hi}%). Grupos com menos de 3 respostas ficam de fora dessa leitura.`:'';
 }
 
+/* linhas categóricas × um item Likert (1–5); métrica = % que concordam (4–5) */
+function heatLk(mountId,noteId,rowKey,rowOrder,lkIdx,headLabel,totLabel,hiDesc){
+ const val=r=>Array.isArray(r.lk)?r.lk[lkIdx]:null;
+ const labels=rowOrder?rowOrder.filter(o=>R.some(r=>r[rowKey]===o)):countSingle(R,rowKey).map(a=>a.label);
+ const cols=[1,2,3,4,5];
+ const head=`<div class="hrow"><div class="hh l">${headLabel}</div>`+cols.map(c=>`<div class="hh">${c}</div>`).join('')+`<div class="hh">n</div><div class="hh">concorda 4–5</div></div>`;
+ const mkRow=(lab,rows,cls)=>{
+  const n=rows.filter(r=>val(r)!=null).length;
+  const cells=cols.map(cv=>{const cnt=rows.filter(r=>val(r)===cv).length;const p=pct(cnt,n);const al=cls?0:(p/100)*0.9;const bg=cls?'#ece3d5':`rgba(${HEATRGB},${al.toFixed(2)})`;const dark=al>0.5;
+   return `<div class="cell" style="background:${bg};color:${dark?'#fff':'var(--ink)'}">${cnt?`<span class="c">${cnt}</span><span class="p">${p}%</span>`:'<span class="p" style="opacity:.35">·</span>'}</div>`;}).join('');
+  const hi=pct(rows.filter(r=>val(r)>=4).length,n);
+  return `<div class="hrow${cls?' totrow':''}"><div class="rk">${lab}</div>${cells}<div class="tot">${n}</div><div class="uf">${hi}%</div></div>`;
+ };
+ const body=labels.map(a=>mkRow(a,R.filter(r=>r[rowKey]===a),false)).join('');
+ const totrow=mkRow(totLabel,R,true);
+ document.getElementById(mountId).innerHTML=head+body+totrow;
+ const stats=labels.map(a=>{const rr=R.filter(r=>r[rowKey]===a&&val(r)!=null);return{a,n:rr.length,hi:pct(rr.filter(r=>val(r)>=4).length,rr.length)};}).filter(s=>s.n>=3).sort((x,y)=>y.hi-x.hi);
+ const hi=stats[0],lo=stats[stats.length-1];
+ document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`<b>Conclusão:</b> ${hiDesc} é maior em "<b>${hi.a}</b>" (${hi.hi}%) e menor em "<b>${lo.a}</b>" (${lo.hi}%). Grupos com menos de 3 respostas ficam de fora.`:'';
+}
+/* dois itens Likert: linhas = concordância agrupada no 1º item · colunas = 2º item (1–5) */
+function heatLkLk(mountId,noteId,rowLk,colLk,headLabel,hiDesc){
+ const rv=r=>Array.isArray(r.lk)?r.lk[rowLk]:null, cv=r=>Array.isArray(r.lk)?r.lk[colLk]:null;
+ const groups=[{lab:'Concorda (4–5)',t:v=>v>=4},{lab:'Neutro (3)',t:v=>v===3},{lab:'Discorda (1–2)',t:v=>v<=2}];
+ const cols=[1,2,3,4,5];
+ const head=`<div class="hrow"><div class="hh l">${headLabel}</div>`+cols.map(c=>`<div class="hh">${c}</div>`).join('')+`<div class="hh">n</div><div class="hh">concorda 4–5</div></div>`;
+ const mkRow=(lab,rows,cls)=>{
+  const n=rows.filter(r=>cv(r)!=null).length;
+  const cells=cols.map(c=>{const cnt=rows.filter(r=>cv(r)===c).length;const p=pct(cnt,n);const al=cls?0:(p/100)*0.9;const bg=cls?'#ece3d5':`rgba(${HEATRGB},${al.toFixed(2)})`;const dark=al>0.5;
+   return `<div class="cell" style="background:${bg};color:${dark?'#fff':'var(--ink)'}">${cnt?`<span class="c">${cnt}</span><span class="p">${p}%</span>`:'<span class="p" style="opacity:.35">·</span>'}</div>`;}).join('');
+  const hi=pct(rows.filter(r=>cv(r)>=4).length,n);
+  return `<div class="hrow${cls?' totrow':''}"><div class="rk">${lab}</div>${cells}<div class="tot">${n}</div><div class="uf">${hi}%</div></div>`;
+ };
+ const stat=g=>{const rr=R.filter(r=>rv(r)!=null&&g.t(rv(r))&&cv(r)!=null);return{n:rr.length,hi:pct(rr.filter(r=>cv(r)>=4).length,rr.length)};};
+ const body=groups.map(g=>mkRow(g.lab,R.filter(r=>rv(r)!=null&&g.t(rv(r))),false)).join('');
+ const totrow=mkRow('Todas as respostas',R,true);
+ document.getElementById(mountId).innerHTML=head+body+totrow;
+ const ag=stat(groups[0]),dis=stat(groups[2]);
+ document.getElementById(noteId).innerHTML=(ag.n>=3&&dis.n>=3&&ag.hi!==dis.hi)?`<b>Conclusão:</b> entre quem percebe regras claras, ${hiDesc.toLowerCase()} chega a <b>${ag.hi}%</b>; entre quem discorda que as regras sejam claras, cai para <b>${dis.hi}%</b>. Reforça que diretrizes claras acompanham mais disposição para decidir.`:'';
+}
+/* linhas categóricas × opções mais citadas de um campo de múltipla escolha; cor = % da linha */
+function heatCatMulti(mountId,noteId,rowKey,multiKey,topN,headLabel,totLabel){
+ const opts=multiCount(R,multiKey).slice(0,topN).map(x=>x.label);
+ const labels=countSingle(R,rowKey).map(a=>a.label);
+ const head=`<div class="hrow"><div class="hh l">${headLabel}</div>`+opts.map(o=>`<div class="hh">${o}</div>`).join('')+`<div class="hh">n</div></div>`;
+ const mkRow=(lab,rows,cls)=>{
+  const n=rows.length;
+  const cells=opts.map(o=>{const cnt=rows.filter(r=>(r[multiKey]||[]).includes(o)).length;const p=pct(cnt,n);const al=cls?0:(p/100)*0.9;const bg=cls?'#ece3d5':`rgba(${HEATRGB},${al.toFixed(2)})`;const dark=al>0.5;
+   return `<div class="cell" style="background:${bg};color:${dark?'#fff':'var(--ink)'}">${cnt?`<span class="c">${cnt}</span><span class="p">${p}%</span>`:'<span class="p" style="opacity:.35">·</span>'}</div>`;}).join('');
+  return `<div class="hrow${cls?' totrow':''}"><div class="rk">${lab}</div>${cells}<div class="tot">${n}</div></div>`;
+ };
+ const body=labels.map(a=>mkRow(a,R.filter(r=>r[rowKey]===a),false)).join('');
+ const totrow=mkRow(totLabel,R,true);
+ document.getElementById(mountId).innerHTML=head+body+totrow;
+ const o1=opts[0];
+ const stats=labels.map(a=>{const rr=R.filter(r=>r[rowKey]===a);return{a,n:rr.length,p:pct(rr.filter(r=>(r[multiKey]||[]).includes(o1)).length,rr.length)};}).filter(s=>s.n>=5).sort((x,y)=>y.p-x.p);
+ const hi=stats[0],lo=stats[stats.length-1];
+ document.getElementById(noteId).innerHTML=(hi&&lo&&hi!==lo)?`<b>Conclusão:</b> as oportunidades mais citadas variam por área. Em "<b>${o1}</b>", a mais citada no geral, a adesão vai de <b>${hi.p}%</b> em ${hi.a} a <b>${lo.p}%</b> em ${lo.a}. Áreas com menos de 5 respostas ficam de fora dessa leitura.`:'';
+}
 /* ===== WIRING ===== */
 function renderLkLegend(){const L=['1 Discordo totalmente','2','3 Neutro','4','5 Concordo totalmente'];const el=$('#lkLegend');if(el)el.innerHTML=L.map((t,i)=>`<span><i style="background:${DIV[i]}"></i>${t}</span>`).join('');}
 let OPENTEXT="";
