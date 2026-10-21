@@ -1,0 +1,824 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>O MIT e a IA no ensino</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: agenda rail at left (sections + minutes + timer), one presentation screen at a time on the stage; stacks on phones. */
+:root {
+  --bg: #eef0f2;
+  --surface: #ffffff;
+  --ink: #15191e;
+  --muted: #59626d;
+  --rule: #d6dbe0;
+  --accent: #a31f34;
+  --accent-ink: #ffffff;
+  --accent-soft: #f7e6e9;
+  --chip: #e3e7eb;
+  --display: "Bricolage Grotesque", "IBM Plex Sans", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111316; --surface: #1a1d21; --ink: #eceef0; --muted: #9ba4ae; --rule: #2d3238;
+    --accent: #e05a6e; --accent-ink: #16090c; --accent-soft: #3a1c22; --chip: #262a30;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111316; --surface: #1a1d21; --ink: #eceef0; --muted: #9ba4ae; --rule: #2d3238;
+  --accent: #e05a6e; --accent-ink: #16090c; --accent-soft: #3a1c22; --chip: #262a30;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.5; }
+* { box-sizing: border-box; }
+h1, h2, h3 { font-family: var(--display); line-height: 1.12; text-wrap: balance; margin: 0; }
+p { margin: 0; }
+em { font-style: italic; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.app { display: grid; grid-template-columns: 290px minmax(0, 1fr); min-height: 100%; }
+
+/* rail */
+.rail { background: var(--surface); border-right: 1px solid var(--rule); padding: 24px 20px 20px max(20px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 22px; position: sticky; top: 0; height: 100vh; height: 100dvh; overflow-y: auto; }
+.brand { display: flex; flex-direction: column; gap: 6px; }
+.brand .kicker { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.brand .name { font-family: var(--display); font-weight: 800; font-size: 1.35rem; line-height: 1.1; }
+.brand .name span { color: var(--accent); }
+.agenda { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.agenda button { width: 100%; text-align: left; background: none; border: 0; border-radius: 8px; padding: 9px 10px; cursor: pointer; display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; align-items: baseline; }
+.agenda button:hover { background: var(--chip); }
+.agenda .t { font-weight: 600; font-size: 0.95rem; }
+.agenda .m { font-family: var(--mono); font-size: 0.78rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.agenda .bar { grid-column: 1 / -1; height: 3px; border-radius: 2px; background: var(--chip); overflow: hidden; margin-top: 6px; }
+.agenda .bar i { display: block; height: 100%; width: 0; background: var(--muted); transition: width .4s; }
+.agenda .bar i.over { background: var(--accent); }
+.agenda li.on button { background: var(--accent-soft); }
+.agenda li.on .t { color: var(--accent); }
+.timer { margin-top: auto; border-top: 1px solid var(--rule); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.timer .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.timer .clock { font-family: var(--mono); font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.timer .clock small { font-size: 0.8rem; color: var(--muted); }
+.btn { border: 1px solid var(--rule); background: var(--surface); border-radius: 8px; padding: 7px 12px; cursor: pointer; font-size: 0.88rem; font-weight: 500; }
+.btn:hover { border-color: var(--muted); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.primary:hover { filter: brightness(1.06); }
+.dl-status { font-size: 0.8rem; color: var(--muted); min-height: 1.2em; }
+
+/* stage */
+.stage { display: flex; flex-direction: column; min-width: 0; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.screens { flex: 1; display: flex; justify-content: center; padding-block: 40px 24px; }
+.screen { width: 100%; max-width: 1120px; display: flex; flex-direction: column; gap: 28px; animation: in .35s ease both; }
+@keyframes in { from { opacity: .3; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .screen { animation: none; } .agenda .bar i { transition: none; } }
+.eyebrow { font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 600; color: var(--accent); display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.eyebrow .src { color: var(--muted); font-family: var(--mono); letter-spacing: 0; text-transform: none; font-weight: 500; }
+h2 { font-size: clamp(1.9rem, 3.4vw, 2.9rem); font-weight: 700; letter-spacing: -0.015em; max-width: 26ch; }
+.lead { font-size: clamp(1.05rem, 1.5vw, 1.25rem); color: var(--muted); max-width: 62ch; }
+.grid { display: grid; gap: 16px; }
+.g2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.g4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.card h3 { font-size: 1.15rem; font-weight: 700; }
+.card p, .card li { font-size: 0.97rem; }
+.card .small { font-size: 0.86rem; color: var(--muted); }
+.code { font-family: var(--mono); font-size: 0.82rem; color: var(--accent); font-variant-numeric: tabular-nums; }
+.en { font-style: italic; color: var(--muted); font-size: 0.86rem; }
+ul.clean { margin: 0; padding-left: 1.15em; display: flex; flex-direction: column; gap: 6px; }
+.quote { font-family: var(--display); font-weight: 500; font-size: clamp(1.3rem, 2.2vw, 1.75rem); line-height: 1.25; max-width: 40ch; border-left: 4px solid var(--accent); padding-left: 18px; }
+.quote cite { display: block; margin-top: 8px; font-family: var(--body); font-style: normal; font-size: 0.85rem; color: var(--muted); }
+.note { font-size: 0.88rem; color: var(--muted); }
+.pill { display: inline-block; font-size: 0.75rem; font-weight: 600; padding: 2px 9px; border-radius: 999px; background: var(--chip); color: var(--muted); }
+.pill.hot { background: var(--accent-soft); color: var(--accent); }
+.card > .pill { align-self: flex-start; }
+
+/* cover */
+.cover { justify-content: center; gap: 34px; padding-top: 4vh; }
+.cover h1 { font-size: clamp(2.6rem, 6.2vw, 5.2rem); font-weight: 800; letter-spacing: -0.03em; max-width: 13ch; }
+.cover h1 span { color: var(--accent); }
+.cover .meta { display: flex; flex-wrap: wrap; gap: 10px 28px; color: var(--muted); font-size: 0.95rem; }
+.cover .meta b { color: var(--ink); font-weight: 600; }
+.run { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; max-width: 900px; }
+.run div { border-top: 3px solid var(--rule); padding-top: 8px; font-size: 0.85rem; }
+.run div b { display: block; font-family: var(--mono); font-weight: 500; color: var(--muted); font-size: 0.78rem; }
+.run div.d { border-top-color: var(--accent); }
+
+/* tables */
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); }
+table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+td.mit { font-weight: 600; white-space: nowrap; }
+td.mit .en { display: block; font-weight: 400; white-space: normal; }
+.vocab { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+
+/* recommendations list */
+.recs { display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); }
+.recs details { border-bottom: 1px solid var(--rule); }
+.recs details:last-child { border-bottom: 0; }
+.recs summary { list-style: none; cursor: pointer; padding: 12px 16px; display: grid; grid-template-columns: 4.2em minmax(0, 1fr) auto; gap: 4px 12px; align-items: baseline; }
+.recs summary::-webkit-details-marker { display: none; }
+.recs summary:hover { background: var(--chip); }
+.recs summary .ti { font-weight: 600; }
+.recs summary .id { grid-column: 2; color: var(--muted); font-size: 0.92rem; }
+.recs summary .chev { grid-row: 1; grid-column: 3; font-family: var(--mono); color: var(--muted); }
+.recs details[open] summary .chev { color: var(--accent); }
+.recs details[open] summary { background: var(--accent-soft); }
+.recs .body { padding: 6px 16px 16px calc(16px + 4.2em + 12px); font-size: 0.95rem; display: flex; flex-direction: column; gap: 6px; }
+.recs .body b { color: var(--ink); }
+
+.area-head { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+.big { font-family: var(--display); font-weight: 800; font-size: clamp(2.4rem, 4.5vw, 3.6rem); line-height: 1; color: var(--accent); font-variant-numeric: tabular-nums; }
+.stat { display: flex; flex-direction: column; gap: 6px; }
+
+/* bars */
+.bars { display: flex; flex-direction: column; gap: 12px; }
+.barrow { display: grid; grid-template-columns: 9.5em minmax(0, 1fr) 4.5em; gap: 10px; align-items: center; font-size: 0.9rem; }
+.barrow .track { height: 14px; background: var(--chip); border-radius: 3px; overflow: hidden; }
+.barrow .fill { height: 100%; background: var(--muted); }
+.barrow .fill.acc { background: var(--accent); }
+.barrow .v { font-family: var(--mono); font-variant-numeric: tabular-nums; text-align: right; }
+
+.flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.flow > div { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 14px; display: flex; flex-direction: column; gap: 6px; position: relative; }
+.flow > div b { font-size: 0.98rem; }
+.flow > div span { font-size: 0.86rem; color: var(--muted); }
+
+.fronts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.debate { align-items: flex-start; justify-content: center; padding-top: 6vh; }
+.debate h2 { font-size: clamp(2.6rem, 6vw, 4.6rem); font-weight: 800; }
+
+/* footer nav */
+.nav { position: sticky; bottom: 0; background: var(--bg); border-top: 1px solid var(--rule); display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 12px calc(12px + env(safe-area-inset-bottom, 0px)); }
+.nav .where { font-size: 0.88rem; color: var(--muted); font-variant-numeric: tabular-nums; text-align: center; flex: 1; min-width: 0; }
+.nav .where b { color: var(--ink); font-weight: 600; }
+.hint { font-size: 0.78rem; color: var(--muted); }
+kbd { font-family: var(--mono); font-size: 0.75rem; border: 1px solid var(--rule); border-radius: 4px; padding: 0 5px; background: var(--surface); }
+
+@media (max-width: 1100px) {
+  .g4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .flow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 900px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 16px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px)); gap: 14px; }
+  .agenda { flex-direction: row; overflow-x: auto; gap: 6px; padding-bottom: 4px; }
+  .agenda li { flex: 0 0 auto; }
+  .agenda button { width: auto; }
+  .timer { margin-top: 0; }
+  .g2, .g3, .area-head, .fronts, .vocab { grid-template-columns: minmax(0, 1fr); }
+  .run { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .screens { padding-block: 24px 16px; }
+  .hint { display: none; }
+}
+@media (max-width: 560px) {
+  .g4, .flow { grid-template-columns: minmax(0, 1fr); }
+  .recs summary { grid-template-columns: 3.6em minmax(0, 1fr) auto; }
+  .recs .body { padding-left: 16px; }
+  .barrow { grid-template-columns: 7em minmax(0, 1fr) 4em; }
+  td.mit { white-space: normal; }
+}
+</style>
+
+<div class="app">
+  <aside class="rail" aria-label="Roteiro da reunião">
+    <div class="brand">
+      <div class="kicker">GIP · UFPel</div>
+      <div class="name">O MIT e a IA <span>no ensino</span></div>
+    </div>
+    <ol class="agenda" id="agenda"></ol>
+    <div class="timer">
+      <div class="row">
+        <div class="clock" id="clock" aria-live="off">00:00 <small>/ 90:00</small></div>
+        <button class="btn" id="timerBtn" type="button">Iniciar</button>
+      </div>
+      <div class="row">
+        <button class="btn" id="resetBtn" type="button">Zerar</button>
+        <button class="btn" id="fsBtn" type="button">Tela cheia</button>
+      </div>
+      <button class="btn primary" id="pdfBtn" type="button" hidden>Baixar material de apoio (PDF)</button>
+      <div class="dl-status" id="dlStatus" role="status"></div>
+    </div>
+  </aside>
+
+  <main class="stage">
+    <div class="screens" id="screens">
+
+      <!-- 1 capa -->
+      <section class="screen cover" data-id="capa" data-sec="abertura">
+        <div class="eyebrow">Grupo de Interlocução Pedagógica · reunião de 90 minutos</div>
+        <h1>O MIT e a IA <span>no ensino</span></h1>
+        <p class="lead">Uma leitura guiada do relatório final do <em>Ad Hoc Committee on AI Use in Teaching, Learning, and Research Training</em>, publicado pelo MIT em 13 de agosto de 2026.</p>
+        <div class="meta">
+          <span><b>Apresentação:</b> Prof. Marilton Sanchotene de Aguiar (CDTec/UFPel)</span>
+          <span><b>Documento:</b> 40 páginas, em inglês</span>
+        </div>
+        <div class="run" aria-label="Roteiro">
+          <div><b>5 min</b>Abertura</div>
+          <div><b>10 min</b>Panorama</div>
+          <div><b>15 min</b>Princípios</div>
+          <div><b>30 min</b>Recomendações</div>
+          <div><b>10 min</b>Conclusão</div>
+          <div class="d"><b>20 min</b>Debate</div>
+        </div>
+      </section>
+
+      <!-- 2 o relatorio -->
+      <section class="screen" data-id="relatorio" data-sec="abertura" hidden>
+        <div class="eyebrow">Abertura <span class="src">cap. 1 · Introduction</span></div>
+        <h2>Pediram uma política de uso. Veio um chamado à ação.</h2>
+        <div class="grid g3">
+          <div class="card">
+            <h3>Quem pediu</h3>
+            <p>Em janeiro de 2026, três dirigentes criaram o comitê:</p>
+            <ul class="clean">
+              <li><b>Chancellor</b>, responsável pela vida estudantil</li>
+              <li><b>Provost</b>, o principal dirigente acadêmico</li>
+              <li><b>Faculty Chair</b>, professor eleito que preside a governança docente</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Quem fez</h3>
+            <p>18 membros: alunos de graduação e de pós, professores de todas as unidades acadêmicas, a diretora das Bibliotecas e a diretora do setor de apoio pedagógico. Coordenação de Eric Klopfer e Sam Madden.</p>
+            <p class="small">Comitê <em>ad hoc</em>: criado para uma tarefa e depois dissolvido.</p>
+          </div>
+          <div class="card">
+            <h3>Como</h3>
+            <p>Reuniões semanais no primeiro semestre de 2026, questionários, análise de políticas de outras universidades e sessões de escuta separadas para graduação e pós.</p>
+            <p class="small">Os autores declaram que nenhum trecho do texto foi gerado por IA.</p>
+          </div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <span class="pill">O pedido</span>
+            <ul class="clean">
+              <li>Avaliar o uso atual de IA no MIT</li>
+              <li>Identificar inovações em ensino e avaliação</li>
+              <li>Propor uma política de uso de IA</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="pill hot">O que entregaram</span>
+            <ul class="clean">
+              <li>Um retrato do cenário educacional atual</li>
+              <li>8 princípios orientadores</li>
+              <li>26 recomendações, imediatas e de longo prazo</li>
+            </ul>
+          </div>
+        </div>
+        <p class="quote">“This report is a call to action.”<cite>Primeira frase do relatório</cite></p>
+      </section>
+
+      <!-- 3 vocabulario -->
+      <section class="screen" data-id="vocabulario" data-sec="abertura" hidden>
+        <div class="eyebrow">Abertura <span class="src">vocabulário</span></div>
+        <h2>Para ler o MIT com olhos de UFPel</h2>
+        <p class="lead">Termos que aparecem o tempo todo no relatório. As equivalências são aproximadas.</p>
+        <div class="vocab">
+          <div class="tablewrap"><table>
+            <thead><tr><th>No MIT</th><th>Algo parecido aqui</th></tr></thead>
+            <tbody>
+              <tr><td class="mit">UROP<span class="en">Undergraduate Research Opportunities Program</span></td><td>Iniciação científica</td></tr>
+              <tr><td class="mit">TA<span class="en">teaching assistant</span></td><td>Monitor, em geral aluno de pós</td></tr>
+              <tr><td class="mit">P-set<span class="en">problem set</span></td><td>Lista de exercícios semanal, valendo nota</td></tr>
+              <tr><td class="mit">Office hours</td><td>Plantão de dúvidas</td></tr>
+              <tr><td class="mit">Recitation</td><td>Aula de exercícios em turma menor</td></tr>
+              <tr><td class="mit">GIRs<span class="en">General Institute Requirements</span></td><td>Disciplinas básicas comuns a toda a graduação</td></tr>
+              <tr><td class="mit">GPA<span class="en">Grade Point Average</span></td><td>Coeficiente de rendimento</td></tr>
+            </tbody>
+          </table></div>
+          <div class="tablewrap"><table>
+            <thead><tr><th>No MIT</th><th>Algo parecido aqui</th></tr></thead>
+            <tbody>
+              <tr><td class="mit">Provost</td><td>Pró-reitor acadêmico geral</td></tr>
+              <tr><td class="mit">Faculty governance</td><td>Conselhos e colegiados docentes</td></tr>
+              <tr><td class="mit">Schools</td><td>Centros ou unidades acadêmicas</td></tr>
+              <tr><td class="mit">Teaching and Learning Lab</td><td>Núcleo de apoio pedagógico</td></tr>
+              <tr><td class="mit">COD<span class="en">Committee on Discipline</span></td><td>Comissão disciplinar</td></tr>
+              <tr><td class="mit">Syllabus</td><td>Plano de ensino</td></tr>
+              <tr><td class="mit">Capstone</td><td>TCC ou projeto integrador</td></tr>
+            </tbody>
+          </table></div>
+        </div>
+        <p class="note">O glossário completo, com cerca de 50 termos, está no material de apoio em PDF.</p>
+      </section>
+
+      <!-- 4 cenario -->
+      <section class="screen" data-id="cenario" data-sec="panorama" hidden>
+        <div class="eyebrow">Panorama <span class="src">cap. 1.1 · The Landscape</span></div>
+        <h2>A IA já está em toda parte, e o campus sentiu</h2>
+        <div class="grid g2">
+          <div class="card">
+            <h3>Alunos</h3>
+            <p>Usam IA com frequência e com sentimentos misturados: curiosidade, inspiração e gratidão convivem com resignação, preocupação e ansiedade.</p>
+          </div>
+          <div class="card">
+            <h3>Instrutores</h3>
+            <p>Vão do entusiasmo e da dependência crescente à desconfiança e à “recusa à IA”. Quase todos querem trocar experiências.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Sinais preocupantes apontados pelo comitê</h3>
+          <div class="grid g2">
+            <ul class="clean">
+              <li>Pilares da graduação abalados: p-sets, provas para casa, iniciação científica, plantões e grupos de estudo</li>
+              <li>Mais isolamento entre os alunos</li>
+              <li>Menos domínio do conteúdo e menos autoconfiança</li>
+            </ul>
+            <ul class="clean">
+              <li>Desgaste do “contrato social” entre professores e alunos</li>
+              <li>Avaliar o progresso dos alunos ficou muito mais difícil</li>
+              <li>Normas antigas sobre rigor, colaboração e integridade em xeque</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5 agir -->
+      <section class="screen" data-id="agir" data-sec="panorama" hidden>
+        <div class="eyebrow">Panorama <span class="src">cap. 1.1 · The Landscape</span></div>
+        <h2>Por que o comitê acha que é preciso agir agora</h2>
+        <div class="grid g4">
+          <div class="card"><span class="pill hot">Clareza</span><p>Os alunos estão confusos com regras de IA que mudam de disciplina para disciplina e raramente vêm justificadas.</p></div>
+          <div class="card"><span class="pill hot">Disciplinas</span><p>Provavelmente toda disciplina precisará ser revista para ficar <em>AI-aware</em>: no que ensina, como ensina e como avalia.</p></div>
+          <div class="card"><span class="pill hot">Conteúdo</span><p>A IA muda o que os alunos precisam saber e saber fazer.</p></div>
+          <div class="card"><span class="pill hot">Finalidade</span><p>Além das disciplinas, cabe reavaliar a natureza e o propósito do ensino superior.</p></div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <h3>Preocupações práticas</h3>
+            <p>Privacidade e confidencialidade de dados, desigualdade de acesso, viés, justiça e responsabilização.</p>
+          </div>
+          <div class="card">
+            <h3>Questões para a sociedade</h3>
+            <p>Impacto ambiental dos <em>data centers</em>, uso de propriedade intelectual no treinamento e os efeitos humanos da indústria de IA.</p>
+          </div>
+        </div>
+        <p class="quote">Outras universidades enfrentam as mesmas perguntas, mas “ninguém parece ter tudo resolvido”.</p>
+      </section>
+
+      <!-- 6 principios 1 -->
+      <section class="screen" data-id="principios-1" data-sec="principios" hidden>
+        <div class="eyebrow">Princípios <span class="src">cap. 2 · 2.1 a 2.4</span></div>
+        <h2>Oito princípios para orientar o caminho</h2>
+        <div class="grid g4">
+          <div class="card">
+            <span class="code">2.1</span>
+            <h3>Seja humilde</h3><span class="en">Be humble</span>
+            <p>A IA generativa tem menos de quatro anos de uso público e já passou de um bilhão de usuários. Haverá correções de rumo.</p>
+          </div>
+          <div class="card">
+            <span class="code">2.2</span>
+            <h3>Seja ousado</h3><span class="en">Be bold</span>
+            <p>Incerteza não justifica ficar parado. “Não é hora de remendos e fita adesiva.”</p>
+            <p class="small">O MIT já tem um programa de ética em computação (SERC) no sétimo ano.</p>
+          </div>
+          <div class="card">
+            <span class="code">2.3</span>
+            <h3>Humanidade em primeiro lugar</h3><span class="en">Put humanity front and center</span>
+            <p>Professores cogitaram trocar bolsistas de iniciação científica por agentes de IA. A pesquisa também forma pessoas; essa “ineficiência” é o propósito.</p>
+          </div>
+          <div class="card">
+            <span class="code">2.4</span>
+            <h3>Aposte na aprendizagem</h3><span class="en">Lean into learning</span>
+            <p>Um novo contrato com o aluno: a dificuldade faz parte (luta produtiva) e o produto da formação é a pessoa, não a média ou o diploma.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 7 principios 2 -->
+      <section class="screen" data-id="principios-2" data-sec="principios" hidden>
+        <div class="eyebrow">Princípios <span class="src">cap. 2 · 2.5 a 2.8</span></div>
+        <h2>Oito princípios para orientar o caminho</h2>
+        <div class="grid g4">
+          <div class="card">
+            <span class="code">2.5</span>
+            <h3>Ensine com intencionalidade</h3><span class="en">Teach with intentionality</span>
+            <p>Comece pelo propósito (<em>backward design</em>): o que o aluno deve saber e fazer? A pergunta “libero ou proíbo?” vem depois.</p>
+          </div>
+          <div class="card">
+            <span class="code">2.6</span>
+            <h3>Não existe solução única</h3><span class="en">No one size fits all</span>
+            <p>Poesia, demonstrações matemáticas e projeto arquitetônico pedem relações diferentes com a IA. Marco comum, escolhas por departamento.</p>
+          </div>
+          <div class="card">
+            <span class="code">2.7</span>
+            <h3>Ampliar, não automatizar</h3><span class="en">Augmentation not automation</span>
+            <p>IA “pró-aprendiz”, inspirada na IA “pró-trabalhador” de Acemoglu, Autor e Johnson. O risco é a “rendição cognitiva” ao primeiro sinal de dificuldade.</p>
+          </div>
+          <div class="card">
+            <span class="code">2.8</span>
+            <h3>Pense além da sala e do campus</h3><span class="en">Think beyond the classroom and the campus</span>
+            <p>Muito do que se aprende vem da convivência. O perigo é uma visão transacional: tarefa como produto, colega como opcional, diploma como mercadoria.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 8 recomendacoes intro -->
+      <section class="screen" data-id="recomendacoes" data-sec="recomendacoes" hidden>
+        <div class="eyebrow">Recomendações <span class="src">cap. 3 · introdução</span></div>
+        <h2>26 recomendações que precisam andar juntas</h2>
+        <div class="area-head">
+          <div class="card">
+            <h3>O que já mudou em menos de três anos</h3>
+            <ul class="clean">
+              <li>Menos alunos nos plantões de dúvidas</li>
+              <li>Menos participação nos fóruns on-line das disciplinas</li>
+              <li>Relatos de menos grupos de estudo em alojamentos e bibliotecas</li>
+            </ul>
+            <p class="small">LLMs já resolvem quase qualquer tarefa escrita da graduação: redações, problemas, demonstrações e programas.</p>
+          </div>
+          <div class="card">
+            <h3>Dois horizontes</h3>
+            <p><b>Já:</b> mudanças para implantar imediatamente.</p>
+            <p><b>Começar já:</b> mudanças que pedem estudo e planejamento.</p>
+            <p class="small">Não é uma lista para cumprir item a item.</p>
+          </div>
+        </div>
+        <div class="grid g3">
+          <button class="card" type="button" data-go="area-1" style="text-align:left;cursor:pointer">
+            <span class="code">3.1 · 10 recomendações</span>
+            <h3>Adaptar os processos educacionais</h3>
+            <p class="small">Objetivos, avaliação, projetos, notas, políticas de uso, detectores.</p>
+          </button>
+          <button class="card" type="button" data-go="area-2" style="text-align:left;cursor:pointer">
+            <span class="code">3.2 · 6 recomendações</span>
+            <h3>Pessoas, comunidade e vida no campus</h3>
+            <p class="small">Educação residencial, bem-estar, transparência docente, formação em IA, teses.</p>
+          </button>
+          <button class="card" type="button" data-go="area-3" style="text-align:left;cursor:pointer">
+            <span class="code">3.3 · 10 recomendações</span>
+            <h3>Estruturas para melhoria contínua</h3>
+            <p class="small">Comitê permanente, equipes, fundo, acesso, privacidade, meio ambiente.</p>
+          </button>
+        </div>
+        <p class="quote">Para preservar o que mais importa, será preciso mudar de forma deliberada.<cite>Paráfrase do relatório, cap. 3</cite></p>
+      </section>
+
+      <!-- 9 area 1 -->
+      <section class="screen" data-id="area-1" data-sec="recomendacoes" hidden>
+        <div class="eyebrow">Recomendações <span class="src">3.1 · Adapt educational processes for an AI-aware world</span></div>
+        <h2>Adaptar os processos educacionais</h2>
+        <p class="lead">O trabalho feito fora da sala perdeu valor como evidência de aprendizado. Mas o comitê pede mais que disciplinas “à prova de IA”: o desafio maior é social. Clique em cada item para ver as sugestões.</p>
+        <div class="recs">
+          <details><summary><span class="code">3.1.1</span><span class="ti">Rever os objetivos das disciplinas</span><span class="chev">+</span><span class="id">Objetivos <em>AI-aware</em>, definidos antes de pensar na avaliação.</span></summary>
+            <div class="body"><p>Alguns objetivos merecem revisão; o texto pergunta se todos ainda precisam escrever programas complexos à mão. Outros ficam possíveis: num curso de mediadores, <em>coaches</em> de IA tiraram o constrangimento de ensaiar em público e os alunos treinaram mais.</p></div></details>
+          <details><summary><span class="code">3.1.2</span><span class="ti">Garantir aprendizado duradouro</span><span class="chev">+</span><span class="id">Pesar só a prova em sala tem custo: desestimula p-sets e projetos longos.</span></summary>
+            <div class="body"><p><b>Sugestões:</b> provas orais, portfólios semestrais, trabalhos extraclasse seguidos de conversa em sala; mais TAs e tempo de aula para avaliar; discutir o tamanho das turmas.</p></div></details>
+          <details><summary><span class="code">3.1.3</span><span class="ti">Mais aprendizagem experiencial e por projetos</span><span class="chev">+</span><span class="id">Com IA, o projeto de fim de curso de software pode chegar perto do nível profissional.</span></summary>
+            <div class="body"><p>Na arquitetura, a IA acelera a visualização, o que torna os fundamentos ainda mais importantes. <b>Sugestões:</b> apoiar e reconhecer o desenvolvimento docente; ampliar o escopo real dos projetos; mais projetos colaborativos em sala.</p></div></details>
+          <details><summary><span class="code">3.1.4</span><span class="ti">Aprendizagem social presencial e estruturada</span><span class="chev">+</span><span class="id">Toda disciplina com um componente social presencial regular.</span></summary>
+            <div class="body"><p><b>Exemplos:</b> projetos em grupo com encontros semanais; resolução de problemas guiada por TA; discussões em torno da rubrica; debates com nota de participação. Explicar no primeiro dia por que isso importa.</p></div></details>
+          <details><summary><span class="code">3.1.5</span><span class="ti">Preservar pesquisa e experiências de carreira</span><span class="chev">+</span><span class="id">O UROP envolve 93% da graduação e 58% dos professores. Existe para educar.</span></summary>
+            <div class="body"><p><b>Sugestões:</b> ampliar o UROP e torná-lo mais acessível; programas <em>co-op</em> (alternância estudo/trabalho); deixar que essas experiências contem para o curso; parcerias com os programas de impacto social e de estágio no exterior.</p></div></details>
+          <details><summary><span class="code">3.1.6</span><span class="ti">Repensar notas e incentivos</span><span class="chev">+</span><span class="id">Não ao racionamento de notas; estudar outros sistemas de avaliação.</span></summary>
+            <div class="body"><p>Sistema britânico de porcentagens, avaliação por competência ou domínio, portfólios e <em>feedback</em> em tempo real. Exercício de pensamento: sem notas, boa parte do incentivo à trapaça sumiria.</p></div></details>
+          <details><summary><span class="code">3.1.7</span><span class="ti">Mais espaços para laboratórios e avaliação presencial</span><span class="chev">+</span><span class="id">Salas colaborativas, analógicas ou com computadores sem IA, e gente para mantê-las.</span></summary>
+            <div class="body"><p>Espaços assim em todas as áreas, e não só nas ciências de laboratório.</p></div></details>
+          <details><summary><span class="code">3.1.8</span><span class="ti">Políticas de uso de IA, com justificativa</span><span class="chev">+</span><span class="id">Toda disciplina com política clara no plano de ensino, ligada aos objetivos.</span></summary>
+            <div class="body"><p>Cardápio institucional de políticas e formato padronizado. O apêndice B traz quatro modelos: uso livre, limitado, obrigatório e proibido. Alertar que LLMs inventam fatos e citações; o aluno responde pelo que entrega.</p></div></details>
+          <details><summary><span class="code">3.1.9</span><span class="ti">Cautela com detectores e provas on-line</span><span class="chev">+</span><span class="id">Detectores falham, geram desconfiança e prejudicam não nativos e neurodivergentes.</span></summary>
+            <div class="body"><p><b>Alternativas:</b> rascunhos à mão em sala, entregas parciais, histórico de versões entregue junto. Navegadores de bloqueio ainda são instáveis; a prova presencial com fiscal segue melhor. A comissão disciplinar não aceita detector como prova suficiente.</p></div></details>
+          <details><summary><span class="code">3.1.10</span><span class="ti">Experimentação responsável no currículo</span><span class="chev">+</span><span class="id">Trilhas “AI Light” e “AI Heavy” e trâmites mais rápidos para experimentos.</span></summary>
+            <div class="body"><p>Oferecer um caminho com uso mínimo de IA para quem prefere não usar. Pedir à governança docente vias rápidas para mudanças curriculares, com avaliação dos resultados.</p></div></details>
+        </div>
+      </section>
+
+      <!-- 10 area 1 destaques -->
+      <section class="screen" data-id="area-1-destaques" data-sec="recomendacoes" hidden>
+        <div class="eyebrow">Recomendações <span class="src">3.1 · destaques para discussão</span></div>
+        <h2>Avaliar sem policiar</h2>
+        <div class="grid g3">
+          <div class="card">
+            <span class="code">3.1.2</span>
+            <h3>A armadilha da prova em sala</h3>
+            <p>É a reação mais comum, mas ensina o contrário do que se quer: premia respostas rápidas e tira o incentivo para o trabalho longo que leva ao domínio.</p>
+            <p class="small">Proposta: provas orais, portfólios e trabalho de casa seguido de conversa.</p>
+          </div>
+          <div class="card">
+            <span class="code">3.1.6</span>
+            <h3>Menos A não resolve</h3>
+            <p>Limitar a quantidade de notas altas aumentaria a pressão para cortar caminho com IA. O comitê sugere estudar outros sistemas e lembra que o MIT já não concede menções honrosas latinas.</p>
+          </div>
+          <div class="card">
+            <span class="code">3.1.9</span>
+            <h3>Detectores, não</h3>
+            <p>Falham em usos mistos, viram corrida contra os “humanizadores de IA” e podem acusar injustamente quem escreve em segunda língua.</p>
+            <p class="small">Melhor: histórico de versões, entregas parciais e <em>feedback</em> ao longo do processo.</p>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Quatro modelos de política para o plano de ensino <span class="en">apêndice B</span></h3>
+          <div class="grid g4">
+            <p><span class="pill">Uso livre</span></p>
+            <p><span class="pill">Só como apoio</span></p>
+            <p><span class="pill">Uso obrigatório</span></p>
+            <p><span class="pill">Proibido</span></p>
+          </div>
+          <p class="small">Em todos os casos, com a justificativa ligada aos objetivos da disciplina.</p>
+        </div>
+      </section>
+
+      <!-- 11 area 2 -->
+      <section class="screen" data-id="area-2" data-sec="recomendacoes" hidden>
+        <div class="eyebrow">Recomendações <span class="src">3.2 · Center people, community, and the residential experience</span></div>
+        <h2>Pessoas, comunidade e vida no campus</h2>
+        <div class="area-head">
+          <p class="lead">A IA chega num momento frágil, com ansiedade, solidão e comunidades ainda se recompondo da pandemia. O objetivo é que “as máquinas nos sirvam, e não o contrário”.</p>
+          <div class="grid g2">
+            <div class="stat"><span class="big">25%</span><span class="small note">dos alunos acham que o MIT os prepara bem para usar IA. Mais de dois terços dizem que ela será importante na carreira.</span></div>
+            <div class="stat"><span class="big">Maioria</span><span class="small note">dos alunos ouvidos pelo jornal estudantil se sente desconfortável com monitores de IA. E percebe “dois pesos e duas medidas” quando o professor usa IA e proíbe o uso.</span></div>
+          </div>
+        </div>
+        <div class="recs">
+          <details><summary><span class="code">3.2.1</span><span class="ti">Comunicar o valor da educação residencial</span><span class="chev">+</span><span class="id">Os calouros precisam entender por que vale a pena estar no campus.</span></summary>
+            <div class="body"><p>Aprender exige desafio e convivência: destrinchar uma demonstração com o grupo, refazer um experimento, discutir com um colega em vez de pegar “a” resposta da IA.</p></div></details>
+          <details><summary><span class="code">3.2.2</span><span class="ti">Fortalecer vínculos e bem-estar</span><span class="chev">+</span><span class="id">O núcleo comum de disciplinas deixou de unir as turmas; há alunos usando IA como apoio emocional.</span></summary>
+            <div class="body"><p><b>Sugestões:</b> preparar professores para reconhecer dificuldades e encaminhar; ampliar comunidades de calouros; painéis sobre trajetórias; “<em>Tech Free Times</em>”, períodos sem aulas nem reuniões para convivência; leituras coletivas.</p></div></details>
+          <details><summary><span class="code">3.2.3</span><span class="ti">Professores declararem o próprio uso de IA</span><span class="chev">+</span><span class="id">Transparência sobre como e por que se usa IA em aulas e correções.</span></summary>
+            <div class="body"><p>Evitar que o único <em>feedback</em> venha de uma máquina. Alternativa: entregar o corretor automático aos alunos, para treino, e não para a nota final.</p></div></details>
+          <details><summary><span class="code">3.2.4</span><span class="ti">Ensinar uso eficaz, responsável e ético</span><span class="chev">+</span><span class="id">Do <em>prompt</em> à verificação, da declaração de uso às questões de autoria e ambiente.</span></summary>
+            <div class="body"><p>Desde a recepção de calouros; componentes de IA nos projetos de fim de curso; disciplinas <b>AI-I-M</b> (intensivas em IA dentro de cada curso), no modelo das disciplinas intensivas em comunicação que o MIT já exige.</p></div></details>
+          <details><summary><span class="code">3.2.5</span><span class="ti">Reconhecer e reduzir impactos negativos</span><span class="chev">+</span><span class="id">Há quem recuse a IA pela coleta de dados sem consentimento. Essa posição também precisa de espaço.</span></summary>
+            <div class="body"><p>Apoiar pesquisas e políticas que reduzam danos e cobrar transparência sobre impactos sociais e ambientais.</p></div></details>
+          <details><summary><span class="code">3.2.6</span><span class="ti">Declarar o uso de IA em teses e pesquisas</span><span class="chev">+</span><span class="id">Toda tese com declaração de uso; IA nunca como coautora.</span></summary>
+            <div class="body"><p>A IA é uma ferramenta sob a direção de um humano, que responde pela exatidão do resultado.</p></div></details>
+        </div>
+      </section>
+
+      <!-- 12 area 3 -->
+      <section class="screen" data-id="area-3" data-sec="recomendacoes" hidden>
+        <div class="eyebrow">Recomendações <span class="src">3.3 · Build processes, teams and tools</span></div>
+        <h2>Estruturas para melhoria contínua</h2>
+        <p class="lead">A IA muda rápido, então qualquer solução vai precisar de ajustes. Esta área põe em prática o princípio da humildade.</p>
+        <div class="recs">
+          <details><summary><span class="code">3.3.1</span><span class="ti">Comitê permanente de IA e educação</span><span class="chev">+</span><span class="id">Estratégia, monitoramento e coordenação de políticas.</span></summary>
+            <div class="body"><p>Acompanharia a evolução dos modelos e as evidências da economia, das ciências da aprendizagem e da experiência no campus.</p></div></details>
+          <details><summary><span class="code">3.3.2</span><span class="ti"><em>AI Leads</em> por unidade ou departamento</span><span class="chev">+</span><span class="id">Responsáveis pelo planejamento local.</span></summary>
+            <div class="body"><p>Políticas adaptadas, revisão das disciplinas e novos modelos de avaliação, como portfólios e avaliação por competência.</p></div></details>
+          <details><summary><span class="code">3.3.3</span><span class="ti"><em>AI Fellows</em> e equipe de implantação</span><span class="chev">+</span><span class="id">Gente para ajudar os professores a adaptar as disciplinas.</span></summary>
+            <div class="body"><p>Servidores, pós-doutorandos e alunos com conhecimento em IA e em ciências da aprendizagem. O setor de apoio pedagógico já está no limite.</p></div></details>
+          <details><summary><span class="code">3.3.4</span><span class="ti"><em>AI Pilot Fund</em></span><span class="chev">+</span><span class="id">Recursos para projetos com IA e também para experiências sem IA.</span></summary>
+            <div class="body"><p>Créditos de IA, monitores, bolsistas e apoio no verão, com prioridade natural para as turmas grandes.</p></div></details>
+          <details><summary><span class="code">3.3.5</span><span class="ti">Formação contínua dos professores</span><span class="chev">+</span><span class="id">Comunidades de prática, e não cursos genéricos “para cumprir tabela”.</span></summary>
+            <div class="body"><p>Seminários na hora do almoço, formação feita pela própria comunidade e workshops periódicos abertos a outras instituições.</p></div></details>
+          <details><summary><span class="code">3.3.6</span><span class="ti">Métricas</span><span class="chev">+</span><span class="id">Uso de IA, engajamento, satisfação e opinião dos egressos.</span></summary>
+            <div class="body"><p>Perguntas novas na pesquisa de qualidade de vida e nas avaliações de disciplina.</p></div></details>
+          <details><summary><span class="code">3.3.7</span><span class="ti">Acesso igualitário</span><span class="chev">+</span><span class="id">Quem paga US$ 200 por mês tem modelos que resolvem projetos inteiros numa noite.</span></summary>
+            <div class="body"><p>Manter e ampliar a plataforma institucional (Parley), incluir ferramentas agênticas e garantir poder computacional para quem treina modelos.</p></div></details>
+          <details><summary><span class="code">3.3.8</span><span class="ti">Proteger dados e preservar a escolha de modelos</span><span class="chev">+</span><span class="id">Não se amarrar a nenhum fornecedor.</span></summary>
+            <div class="body"><p>Muitos serviços usam as conversas para treinar modelos por padrão. Hospedar mais modelos abertos localmente.</p></div></details>
+          <details><summary><span class="code">3.3.9</span><span class="ti">Privacidade, registros e auditoria</span><span class="chev">+</span><span class="id">Quem pode ler as conversas dos alunos com a IA?</span></summary>
+            <div class="body"><p>Política clara de registros, anonimização, aviso explícito quando as conversas forem compartilhadas com o professor e regras públicas para sinais de risco ou sofrimento.</p></div></details>
+          <details><summary><span class="code">3.3.10</span><span class="ti">Custos e impacto ambiental</span><span class="chev">+</span><span class="id">Energia, água e materiais dos <em>data centers</em>.</span></summary>
+            <div class="body"><p>Informar o custo ambiental por modelo, incentivar ferramentas de menor impacto e auditar a pegada do próprio MIT.</p></div></details>
+        </div>
+      </section>
+
+      <!-- 13 area 3 destaques -->
+      <section class="screen" data-id="area-3-destaques" data-sec="recomendacoes" hidden>
+        <div class="eyebrow">Recomendações <span class="src">3.3 · destaques para discussão</span></div>
+        <h2>Quem cuida, com que recursos e com que regras</h2>
+        <div class="flow" aria-label="Estrutura proposta">
+          <div><span class="code">3.3.1</span><b>Comitê permanente</b><span>Estratégia e coordenação</span></div>
+          <div><span class="code">3.3.2</span><b>AI Leads</b><span>Planejamento em cada unidade</span></div>
+          <div><span class="code">3.3.3</span><b>Fellows e equipe</b><span>Apoio direto aos professores</span></div>
+          <div><span class="code">3.3.4</span><b>Fundo piloto</b><span>Dinheiro para experimentar</span></div>
+        </div>
+        <div class="grid g2">
+          <div class="card">
+            <h3>Desigualdade de acesso <span class="code">3.3.7</span></h3>
+            <div class="bars" role="img" aria-label="Plano comercial mais caro, 200 dólares por mês; crédito gratuito do Parley, 30 dólares por mês">
+              <div class="barrow"><span>Plano comercial top</span><span class="track"><span class="fill acc" style="display:block;width:100%"></span></span><span class="v">US$ 200</span></div>
+              <div class="barrow"><span>Crédito no Parley</span><span class="track"><span class="fill" style="display:block;width:15%"></span></span><span class="v">US$ 30</span></div>
+            </div>
+            <p class="small">Valores mensais, junho de 2026. O Parley é a plataforma de IA do MIT, mantida pelo setor de TI, com vários modelos e sem prender a universidade a um fornecedor.</p>
+          </div>
+          <div class="card">
+            <h3>O dilema dos registros <span class="code">3.3.9</span></h3>
+            <p>Como administra o Parley, o MIT pode em tese ler todas as conversas. O usuário espera sigilo; o professor quer saber como os alunos estão usando a IA.</p>
+            <p class="small">As pessoas desabafam com chatbots desde o ELIZA, criado no próprio MIT nos anos 1960. O relatório pede regras públicas para sinais de risco ou sofrimento.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 14 conclusao -->
+      <section class="screen" data-id="conclusao" data-sec="conclusao" hidden>
+        <div class="eyebrow">Conclusão <span class="src">cap. 4 · Conclusion</span></div>
+        <h2>Ser <em>AI-aware</em> não é pôr IA em tudo</h2>
+        <p class="lead">Os membros vinham de todas as unidades, com formações e gerações diferentes, e chegaram às mesmas preocupações. Pela liderança histórica em IA e pela tradição de ensino prático, o comitê diz que liderar essa transição “não é opcional” para o MIT.</p>
+        <div class="fronts">
+          <div class="card">
+            <span class="pill hot">Alunos</span>
+            <ul class="clean">
+              <li>Fazer mais do que torna a vida no campus transformadora</li>
+              <li>Rever o que precisam saber e como são avaliados</li>
+              <li>Ensinar o uso adequado da IA em cada área</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="pill hot">Professores</span>
+            <ul class="clean">
+              <li>Saber usar a IA e quando não usar</li>
+              <li>Liderar a revisão das disciplinas, com apoio dos departamentos</li>
+              <li>Formar comunidades de prática e registrar os experimentos</li>
+            </ul>
+          </div>
+          <div class="card">
+            <span class="pill hot">Ao longo do tempo</span>
+            <ul class="clean">
+              <li>IA do ingresso à formatura</li>
+              <li>Acompanhar o que o mercado pede</li>
+              <li>Pesquisar como a IA afeta a aprendizagem e reduzir danos</li>
+            </ul>
+          </div>
+        </div>
+        <p class="quote">“the ability and passion to work wisely, creatively, and effectively for the betterment of humankind”<cite>Frase final do relatório, retirada da declaração de missão do MIT</cite></p>
+      </section>
+
+      <!-- 15 debate -->
+      <section class="screen debate" data-id="debate" data-sec="debate" hidden>
+        <div class="eyebrow">Debate · 20 minutos</div>
+        <h2>Conversa aberta</h2>
+        <p class="lead">O resumo completo dos quatro capítulos, a lista das 26 recomendações e o glossário estão no material de apoio em PDF.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button class="btn primary" type="button" data-pdf hidden>Baixar material de apoio (PDF)</button>
+          <a class="btn" href="https://aiandeducation.mit.edu/" target="_blank" rel="noopener">MIT AI and Education</a>
+        </div>
+      </section>
+
+    </div>
+
+    <nav class="nav" aria-label="Navegação entre telas">
+      <button class="btn" id="prevBtn" type="button">← Anterior</button>
+      <div class="where" id="where"></div>
+      <span class="hint"><kbd>←</kbd> <kbd>→</kbd> navegam · <kbd>F</kbd> tela cheia</span>
+      <button class="btn primary" id="nextBtn" type="button">Próxima →</button>
+    </nav>
+  </main>
+</div>
+
+<script>
+(function () {
+  var SECTIONS = [
+    { id: "abertura", t: "Abertura", min: 5 },
+    { id: "panorama", t: "Panorama", min: 10 },
+    { id: "principios", t: "Princípios", min: 15 },
+    { id: "recomendacoes", t: "Recomendações", min: 30 },
+    { id: "conclusao", t: "Conclusão", min: 10 },
+    { id: "debate", t: "Debate", min: 20 }
+  ];
+  var PDF_PATH = "mit-ia-ensino-material-de-apoio.pdf";
+  var screens = Array.prototype.slice.call(document.querySelectorAll(".screen"));
+  var agenda = document.getElementById("agenda");
+  var where = document.getElementById("where");
+  var cur = 0;
+  var spent = {}; SECTIONS.forEach(function (s) { spent[s.id] = 0; });
+  var total = 0, running = false, lastTick = 0, ticker = null;
+
+  SECTIONS.forEach(function (s) {
+    var li = document.createElement("li");
+    li.dataset.sec = s.id;
+    li.innerHTML = '<button type="button"><span class="t"></span><span class="m"></span><span class="bar"><i></i></span></button>';
+    li.querySelector(".t").textContent = s.t;
+    li.querySelector(".m").textContent = s.min + " min";
+    li.querySelector("button").addEventListener("click", function () {
+      var i = screens.findIndex(function (sc) { return sc.dataset.sec === s.id; });
+      if (i >= 0) show(i);
+    });
+    agenda.appendChild(li);
+  });
+
+  function fmt(sec) { sec = Math.floor(sec); var m = Math.floor(sec / 60), s = sec % 60; return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s; }
+
+  function paintTimer() {
+    document.getElementById("clock").innerHTML = fmt(total) + " <small>/ 90:00</small>";
+    SECTIONS.forEach(function (s) {
+      var li = agenda.querySelector('[data-sec="' + s.id + '"]');
+      var i = li.querySelector(".bar i");
+      var r = spent[s.id] / (s.min * 60);
+      i.style.width = Math.min(100, r * 100) + "%";
+      i.classList.toggle("over", r > 1);
+      li.querySelector(".m").textContent = spent[s.id] > 0 ? fmt(spent[s.id]) + " / " + s.min + " min" : s.min + " min";
+    });
+  }
+
+  function show(i, noHash) {
+    if (i < 0 || i >= screens.length) return;
+    screens[cur].hidden = true;
+    cur = i;
+    var sc = screens[cur];
+    sc.hidden = false;
+    var sec = sc.dataset.sec;
+    Array.prototype.forEach.call(agenda.children, function (li) { li.classList.toggle("on", li.dataset.sec === sec); });
+    var secObj = SECTIONS.find(function (s) { return s.id === sec; });
+    where.innerHTML = "<b></b> · tela " + (cur + 1) + " de " + screens.length;
+    where.querySelector("b").textContent = secObj ? secObj.t : "";
+    document.getElementById("prevBtn").disabled = cur === 0;
+    document.getElementById("nextBtn").disabled = cur === screens.length - 1;
+    if (!noHash) { try { history.replaceState(null, "", "#" + sc.dataset.id); } catch (e) {} }
+    window.scrollTo(0, 0);
+  }
+
+  function tick() {
+    var now = Date.now();
+    var dt = (now - lastTick) / 1000; lastTick = now;
+    total += dt;
+    spent[screens[cur].dataset.sec] += dt;
+    paintTimer();
+  }
+  var tBtn = document.getElementById("timerBtn");
+  tBtn.addEventListener("click", function () {
+    running = !running;
+    if (running) { lastTick = Date.now(); ticker = setInterval(tick, 500); tBtn.textContent = "Pausar"; }
+    else { clearInterval(ticker); tick(); tBtn.textContent = "Continuar"; }
+  });
+  document.getElementById("resetBtn").addEventListener("click", function () {
+    running = false; clearInterval(ticker); total = 0;
+    SECTIONS.forEach(function (s) { spent[s.id] = 0; });
+    tBtn.textContent = "Iniciar"; paintTimer();
+  });
+
+  var fsBtn = document.getElementById("fsBtn");
+  function toggleFs() {
+    try {
+      if (document.fullscreenElement) { document.exitFullscreen().catch(function () {}); }
+      else if (document.documentElement.requestFullscreen) { document.documentElement.requestFullscreen().catch(function () { fsBtn.hidden = true; }); }
+      else { fsBtn.hidden = true; }
+    } catch (e) { fsBtn.hidden = true; }
+  }
+  if (!document.documentElement.requestFullscreen) fsBtn.hidden = true;
+  fsBtn.addEventListener("click", toggleFs);
+
+  document.getElementById("prevBtn").addEventListener("click", function () { show(cur - 1); });
+  document.getElementById("nextBtn").addEventListener("click", function () { show(cur + 1); });
+  document.querySelectorAll("[data-go]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var i = screens.findIndex(function (sc) { return sc.dataset.id === b.dataset.go; });
+      if (i >= 0) show(i);
+    });
+  });
+
+  document.addEventListener("keydown", function (e) {
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var tag = (e.target && e.target.tagName) || "";
+    if (tag === "INPUT" || tag === "TEXTAREA") return;
+    var k = e.key;
+    if (k === "ArrowRight" || k === "PageDown") { e.preventDefault(); show(cur + 1); }
+    else if (k === "ArrowLeft" || k === "PageUp") { e.preventDefault(); show(cur - 1); }
+    else if (k === "Home") { e.preventDefault(); show(0); }
+    else if (k === "End") { e.preventDefault(); show(screens.length - 1); }
+    else if (k === "f" || k === "F") { toggleFs(); }
+  });
+
+  // download do PDF de apoio
+  var status = document.getElementById("dlStatus");
+  var pdfButtons = Array.prototype.slice.call(document.querySelectorAll("#pdfBtn, [data-pdf]"));
+  function setStatus(msg) { status.textContent = msg; }
+  if (window.claude && typeof window.claude.use === "function") {
+    window.claude.use("downloads").then(function (downloads) {
+      if (!downloads) return;
+      pdfButtons.forEach(function (b) {
+        b.hidden = false;
+        b.addEventListener("click", function () {
+          setStatus("Preparando o arquivo…");
+          fetch(PDF_PATH).then(function (r) {
+            if (!r.ok) throw new Error("http");
+            return r.blob();
+          }).then(function (blob) {
+            return downloads.save({ filename: "MIT-IA-no-ensino-material-de-apoio.pdf", data: blob });
+          }).then(function () {
+            setStatus("PDF salvo.");
+          }).catch(function (err) {
+            var c = err && err.code;
+            if (c === "declined") setStatus("Download cancelado.");
+            else if (c === "rate_limited") setStatus("Já existe um pedido aberto. Tente de novo em instantes.");
+            else setStatus("Não foi possível baixar o PDF aqui. Peça o arquivo ao apresentador.");
+          });
+        });
+      });
+    }).catch(function () {});
+  }
+
+  var start = 0;
+  var h = (location.hash || "").slice(1);
+  if (h) { var j = screens.findIndex(function (sc) { return sc.dataset.id === h; }); if (j >= 0) start = j; }
+  screens.forEach(function (sc, k) { sc.hidden = k !== 0; });
+  show(start, true);
+  window.addEventListener("hashchange", function () {
+    var id = (location.hash || "").slice(1);
+    var j = screens.findIndex(function (sc) { return sc.dataset.id === id; });
+    if (j >= 0 && j !== cur) show(j, true);
+  });
+  paintTimer();
+})();
+</script>
+
+</body></html>
